@@ -625,6 +625,34 @@ body{
     <div style="font-size:.75em;color:var(--text2)">单集纪录片 · 约16分钟 · 6个章节</div>
   </div>
 
+  <!-- 拍摄风格建议 -->
+  <div class="card">
+    <h3><span class="ico">🎯</span>两种拍摄风格</h3>
+    <div style="display:flex;gap:10px;font-size:.78em;text-align:center">
+      <div style="flex:1;background:#f5ede3;padding:12px 8px;border-radius:12px">
+        <div style="font-size:1.8em">🎬</div>
+        <div style="font-weight:700">正经风</div>
+        <div style="color:var(--text2);line-height:1.6">
+          精致专业<br>帧帧好看<br>不容易被截黑图<br>每天15-20分钟
+        </div>
+      </div>
+      <div style="flex:1;background:#e8eef5;padding:12px 8px;border-radius:12px">
+        <div style="font-size:1.8em">📱</div>
+        <div style="font-weight:700">随性风</div>
+        <div style="color:var(--text2);line-height:1.6">
+          真实亲近<br>像朋友在分享<br>可能被截黑图<br>每天3-5分钟
+        </div>
+      </div>
+    </div>
+    <div style="font-size:.75em;color:var(--text2);margin-top:8px;text-align:center">💡 建议混着来：正经拍开头+小结+对比 · 随性拍日常+情绪+翻车</div>
+  </div>
+
+  <!-- 可复制旁白 -->
+  <div class="card">
+    <h3><span class="ico">🎤</span>可复制旁白 · 复制到提词器</h3>
+    <div id="copy-lines"></div>
+  </div>
+
   <!-- 第一章 -->
   <div class="script-chapter">
     <div class="script-ch-header" onclick="toggleChapter(this)">
@@ -1338,6 +1366,7 @@ function renderAll(){
   renderRecipe();
   renderCS();
   renderReading();
+  renderCopyLines();
   renderEntertainment();
   renderStats();
 }
@@ -1779,6 +1808,56 @@ function toggleBook(title){
   renderAll();
   toast(DATA.readingDone[title] ? `📚 读完：《${title}》` : `↩️ 取消：《${title}》`);
 }
+
+// ── VIDEO COPY LINES ──
+function renderCopyLines(){
+  const lines=[
+    {scene:'🎬 开头独白',text:'你有没有这种感觉？明明没干什么，就是累。皮肤暗沉、睡够了还是困、情绪忽好忽坏。我查了很多资料，发现这些可能都是慢性炎症在作祟。所以从今天开始，我要做一个28天的实验——从作息、饮食、运动、情绪、环境五个方面，彻底调整我的习惯。28天，看看我的身体会发生什么变化。如果你也想试，欢迎跟我一起打卡。'},
+    {scene:'🌅 DAY1夜晚',text:'第一天晚上10点，我把手机留在客厅，带了一本书进卧室。说实话，刚开始很不习惯，手总想往床头柜摸。但告诉自己——就试一晚。'},
+    {scene:'🌅 DAY2清晨',text:'第二天6点50分，闹钟响了。没有立刻下床，靠在床头闭上眼睛，专注呼吸——5分钟冥想。我以前觉得冥想很玄，其实做起来，就是给自己一个安静的过渡。然后开窗通风30分钟。早上的空气是凉的，很新鲜，整个人一下子就醒了。'},
+    {scene:'🏋️ DAY2运动+早餐',text:'早餐——杂粮粥、水煮蛋、蓝莓。蓝莓是今天的抗炎食材。第一天运动：力量训练，30分钟。不追求重量，重点是让身体动起来。'},
+    {scene:'👥 DAY5周五社交',text:'周五。这周最期待的一天——和朋友深度交流。不是"吃了吗""最近咋样"那种，而是真正聊了最近的状态、困惑、成长。好的社交不只是"出去玩"，是情绪的出口。聊完之后整个人能量都不一样了。'},
+    {scene:'📝 DAY7情绪记录',text:'每天晚上，花5分钟记录情绪和回顾这一天。一周下来，我发现一个很有意思的事——前三天情绪起伏很大，尤其是戒手机的那一小时，焦躁得不行。但到第五天，睡前竟然没那么想刷手机了。'},
+    {scene:'🎤 第一周小结',text:'第一周关键词——适应。身体在抗议，但也在慢慢接受新的节奏。'},
+    {scene:'😴 第二周自然醒',text:'第二周第3天，我居然在闹钟响之前就醒了。打开手表一看，深度睡眠比第一周多了差不多40分钟。身体在用它的方式告诉我：这个节奏是对的。'},
+    {scene:'🏃 第二周运动',text:'这一周完整走了一遍七天运动循环。力量让你有掌控感，有氧让你呼吸自由，瑜伽教你放松。以前觉得运动是任务，现在开始期待每天那一身汗。'},
+    {scene:'🍳 第二周饮食',text:'饮食开始找到节奏了。今天主食是一半糙米一半白米，蒸一块三文鱼，加一勺姜黄粉——姜黄是非常强的天然抗炎食材。关键是，我开始享受做饭了，不是完成任务，是真的在照顾自己。'},
+    {scene:'🪞 DAY14皮肤',text:'第14天照镜子的时候，皮肤状态明显不一样了。不是那种夸张的变化，但暗沉少了，T区出油也少了。抗炎——真的从脸上能看见。'},
+    {scene:'🎤 第二周小结',text:'第二周关键词——反馈。身体在用好的变化告诉我，这条路没走错。'},
+    {scene:'😔 第三周崩溃',text:'第三周的某一天，加班到很晚。经过便利店的时候，脑子里全是"买瓶奶茶吧，反正就这一次"。站在货架前停了整整一分钟。最后，还是什么都没拿。回去的路上给自己做了15分钟瑜伽——不是计划表上的任务，就是让自己舒服一点。'},
+    {scene:'📝 日计划特写',text:'今天很崩溃。但我坚持了。'},
+    {scene:'👥 第三周对话',text:'周五和朋友见面。她说了一句话让我特别触动："你最近好像松弛了很多，以前你总是绷着的。"我突然意识到，抗炎不只是吃什么、几点睡，而是整个人不再"对抗"了——和自己的身体和解了。'},
+    {scene:'🎤 第三周小结',text:'第三周关键词——惯性。习惯开始长在身上了。不是靠意志力在撑，而是不做这些事，反而不舒服。'},
+    {scene:'🌟 第四周日常',text:'第四周，所有习惯变成了一个流畅的节奏。不需要闹钟督促、不需要意志力支撑。每天11点之前自然困，早上7点之前自然醒。这就是新的日常。'},
+    {scene:'🍅 抗炎食材红榜',text:'四周下来，总结一个抗炎食材红榜：蓝莓花青素、三文鱼Omega-3、姜黄姜黄素、西兰花萝卜硫素、坚果健康脂肪、橄榄油橄榄多酚、绿茶儿茶素、番茄番茄红素。每天至少一种，轮换着吃，不单调。'},
+    {scene:'🎤 结尾',text:'我会继续吗？会的。不是因为这28天改变了我的生活——而是我发现，好的习惯不是束缚，是自由。你的身体，真的会感谢你。'},
+    {scene:'💚 结尾空镜',text:'如果你也想试试，不需要28天全部做到。挑一个你最想改变的习惯——比如今晚把手机放远一点，或者明天早上推开窗户通个风。'},
+    {scene:'🎤 片尾邀请',text:'我会把这28天的完整计划放在评论区。欢迎你来打卡——告诉我，你的第一天从哪天开始？'},
+  ];
+  let h='';
+  for(const l of lines){
+    h+=`<div style="margin-bottom:10px;background:#fdf9f3;border-radius:10px;padding:8px 12px;border-left:3px solid var(--accent)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-weight:700;font-size:.78em;color:var(--accent)">${l.scene}</span>
+        <button onclick="copyLine(this)" data-text="${l.text.replace(/"/g,'&quot;')}" style="font-size:.7em;padding:3px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;color:var(--text);white-space:nowrap">📋 复制</button>
+      </div>
+      <div style="font-size:.78em;line-height:1.6;color:#5c5540;font-style:italic">${l.text}</div>
+    </div>`;
+  }
+  document.getElementById('copy-lines').innerHTML=h;
+}
+window.copyLine=function(btn){
+  const text=btn.dataset.text;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✅ 已复制';btn.style.background='var(--green2)';
+    setTimeout(()=>{btn.textContent='📋 复制';btn.style.background='var(--card)';},1500);
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✅ 已复制';btn.style.background='var(--green2)';
+    setTimeout(()=>{btn.textContent='📋 复制';btn.style.background='var(--card)';},1500);
+  });
+};
 
 // ── RECIPE ──
 function renderRecipe(){
