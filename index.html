@@ -351,6 +351,18 @@ body{
   </div>
 </div>
 
+<!-- ═══════════════ 学习 HUB ═══════════════ -->
+<div class="tab-page" id="tab-hub-learn">
+  <div class="month-selector" id="learn-subnav" style="position:sticky;top:48px;z-index:50;background:var(--bg);padding:8px 0"></div>
+  <div id="learn-content"></div>
+</div>
+
+<!-- ═══════════════ 生活 HUB ═══════════════ -->
+<div class="tab-page" id="tab-hub-life">
+  <div class="month-selector" id="life-subnav" style="position:sticky;top:48px;z-index:50;background:var(--bg);padding:8px 0"></div>
+  <div id="life-content"></div>
+</div>
+
 <!-- ═══════════════ 抗炎 TAB ═══════════════ -->
 <div class="tab-page" id="tab-anti">
   <!-- 周选择器 -->
@@ -940,29 +952,11 @@ body{
   <div class="nav-item" data-tab="anti" onclick="switchTab('anti')">
     <span class="ico">🛏️</span>抗炎
   </div>
-  <div class="nav-item" data-tab="english" onclick="switchTab('english')">
-    <span class="ico">📖</span>英语
+  <div class="nav-item" data-tab="hub-learn" onclick="switchTab('hub-learn')">
+    <span class="ico">📖</span>学习
   </div>
-  <div class="nav-item" data-tab="music" onclick="switchTab('music')">
-    <span class="ico">🎵</span>音乐
-  </div>
-  <div class="nav-item" data-tab="entertainment" onclick="switchTab('entertainment')">
-    <span class="ico">🎬</span>娱乐
-  </div>
-  <div class="nav-item" data-tab="video" onclick="switchTab('video')">
-    <span class="ico">🎥</span>视频
-  </div>
-  <div class="nav-item" data-tab="recipe" onclick="switchTab('recipe')">
-    <span class="ico">🍽️</span>食谱
-  </div>
-  <div class="nav-item" data-tab="cs" onclick="switchTab('cs')">
-    <span class="ico">💻</span>学习
-  </div>
-  <div class="nav-item" data-tab="reading" onclick="switchTab('reading')">
-    <span class="ico">📚</span>阅读
-  </div>
-  <div class="nav-item" data-tab="memo" onclick="switchTab('memo')">
-    <span class="ico">📝</span>随笔
+  <div class="nav-item" data-tab="hub-life" onclick="switchTab('hub-life')">
+    <span class="ico">🍽️</span>生活
   </div>
   <div class="nav-item" data-tab="stats" onclick="switchTab('stats')">
     <span class="ico">📊</span>统计
@@ -2302,13 +2296,52 @@ function switchAntiWeek(w){
   toast(`第${w}周：第${targetDay}天开始`);
 }
 
+let learnSub='english',lifeSub='recipe';
 function switchTab(tab){
   document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-  renderAll();
+  if(tab==='hub-learn'||tab==='hub-life'){
+    document.getElementById('tab-hub-'+tab.split('-')[1]).classList.add('active');
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    if(tab==='hub-learn')renderLearnHub();
+    else renderLifeHub();
+  }else{
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    renderAll();
+  }
 }
+function renderLearnHub(){
+  const subs=[{id:'english',name:'📖 英语'},{id:'cs',name:'💻 CS'},{id:'music',name:'🎵 音乐'},{id:'reading',name:'📚 阅读'}];
+  let h='';
+  for(const s of subs){h+=`<div class="month-btn ${learnSub===s.id?'active':''}" onclick="setLearnSub('${s.id}')">${s.name}</div>`;}
+  document.getElementById('learn-subnav').innerHTML=h;
+  showLearnContent();
+}
+function showLearnContent(){
+  const content=document.getElementById('learn-content');
+  // Clone the relevant tab page content into the hub
+  if(learnSub==='english'){renderEnglish();content.innerHTML=document.getElementById('tab-english').innerHTML;}
+  else if(learnSub==='cs'){renderCS();content.innerHTML=document.getElementById('tab-cs').innerHTML;}
+  else if(learnSub==='music'){renderMusic();content.innerHTML=document.getElementById('tab-music').innerHTML;}
+  else if(learnSub==='reading'){renderReading();content.innerHTML=document.getElementById('tab-reading').innerHTML;}
+}
+function setLearnSub(id){learnSub=id;renderLearnHub();}
+function renderLifeHub(){
+  const subs=[{id:'recipe',name:'🍽️ 食谱'},{id:'entertainment',name:'🎬 娱乐'},{id:'memo',name:'📝 随笔'},{id:'video',name:'🎥 视频'}];
+  let h='';
+  for(const s of subs){h+=`<div class="month-btn ${lifeSub===s.id?'active':''}" onclick="setLifeSub('${s.id}')">${s.name}</div>`;}
+  document.getElementById('life-subnav').innerHTML=h;
+  showLifeContent();
+}
+function showLifeContent(){
+  const content=document.getElementById('life-content');
+  if(lifeSub==='recipe'){renderRecipe();content.innerHTML=document.getElementById('tab-recipe').innerHTML;}
+  else if(lifeSub==='entertainment'){renderEntertainment();content.innerHTML=document.getElementById('tab-entertainment').innerHTML;}
+  else if(lifeSub==='memo'){renderMemos();content.innerHTML=document.getElementById('tab-memo').innerHTML;}
+  else if(lifeSub==='video'){renderCopyLines();content.innerHTML=document.getElementById('tab-video').innerHTML;}
+}
+function setLifeSub(id){lifeSub=id;renderLifeHub();}
 
 function resetAll(){
   if(confirm('确定要重置所有数据吗？此操作不可恢复！')){
