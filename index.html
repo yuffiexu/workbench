@@ -889,6 +889,16 @@ body{
   </div>
 </div>
 
+<!-- ═══════════════ 随笔 TAB ═══════════════ -->
+<div class="tab-page" id="tab-memo">
+  <div class="card">
+    <h3><span class="ico">✍️</span>写点什么</h3>
+    <textarea id="memo-input" placeholder="今天在想什么……" style="width:100%;height:80px;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:.85em;font-family:inherit;resize:vertical;background:var(--card);color:var(--text)"></textarea>
+    <button class="btn btn-accent" onclick="saveMemo()" style="margin-top:8px;width:100%;justify-content:center">💾 记下来</button>
+  </div>
+  <div id="memo-list"></div>
+</div>
+
 <!-- ═══════════════ 统计 TAB ═══════════════ -->
 <div class="tab-page" id="tab-stats">
   <div class="stat-row">
@@ -950,6 +960,9 @@ body{
   </div>
   <div class="nav-item" data-tab="reading" onclick="switchTab('reading')">
     <span class="ico">📚</span>阅读
+  </div>
+  <div class="nav-item" data-tab="memo" onclick="switchTab('memo')">
+    <span class="ico">📝</span>随笔
   </div>
   <div class="nav-item" data-tab="stats" onclick="switchTab('stats')">
     <span class="ico">📊</span>统计
@@ -1265,6 +1278,7 @@ function getDefaultData(){
     csDays:{},
     csPhase:1,
     readingDone:{},
+    memos:[],
     entLog:[],
   };
 }
@@ -1367,6 +1381,7 @@ function renderAll(){
   renderCS();
   renderReading();
   renderCopyLines();
+  renderMemos();
   renderEntertainment();
   renderStats();
 }
@@ -2303,6 +2318,7 @@ function resetAll(){
     DATA.musicStart = TODAY;
     DATA.csDays = {};
     DATA.readingDone = {};
+    DATA.memos = [];
     saveData(DATA);
     renderAll();
     toast('🔄 已重置');
@@ -2316,6 +2332,46 @@ function toggleChapter(header){
   body.classList.toggle('open');
   arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
 }
+
+// ── MEMO ──
+function renderMemos(){
+  const memos=DATA.memos||[];
+  let h='';
+  const sorted=[...memos].reverse();
+  for(let i=0;i<sorted.length;i++){
+    const m=sorted[i];
+    h+=`<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:.7em;color:var(--accent);font-weight:600">📅 ${m.date}</span>
+        <button onclick="deleteMemo(${i})" style="font-size:.65em;padding:2px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--red)">删除</button>
+      </div>
+      <div style="font-size:.82em;line-height:1.6;white-space:pre-wrap">${m.text}</div>
+    </div>`;
+  }
+  if(!h)h='<div style="text-align:center;color:var(--text2);padding:20px;font-size:.85em">还没有记过东西，写第一条吧 ✍️</div>';
+  document.getElementById('memo-list').innerHTML=h;
+}
+window.saveMemo=function(){
+  const input=document.getElementById('memo-input');
+  const text=input.value.trim();
+  if(!text)return;
+  if(!DATA.memos)DATA.memos=[];
+  const now=new Date();
+  const dateStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  DATA.memos.push({date:dateStr,text});
+  saveData(DATA);
+  input.value='';
+  renderMemos();
+  toast('📝 记下来了！');
+};
+window.deleteMemo=function(i){
+  const sorted=[...DATA.memos].reverse();
+  const target=sorted[i];
+  DATA.memos=DATA.memos.filter(m=>m!==target);
+  saveData(DATA);
+  renderMemos();
+  toast('🗑️ 已删除');
+};
 
 // ═══════════════ INIT ═══════════════
 renderAll();
