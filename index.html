@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#c77d4b">
+<title>我的工作台</title>
+<link rel="manifest" href="./manifest.json">
+<style>
+:root {
+  --bg: #fdf8f2;
+  --card: #ffffff;
+  --text: #3d3226;
+  --text2: #8b7355;
+  --accent: #c77d4b;
+  --accent2: #e8d5c4;
+  --green: #6b9b6f;
+  --green2: #dce8dd;
+  --blue: #6b8db5;
+  --blue2: #e4ecf5;
+  --red: #c46b6b;
+  --red2: #f5e4e4;
+  --purple: #9b7eb8;
+  --purple2: #efe8f5;
+  --border: #ebe3d8;
+  --shadow: 0 2px 12px rgba(61,50,38,.07);
+  --radius: 16px;
+  --nav-h: 64px;
+  --header-h: 52px;
+  --safe-b: env(safe-area-inset-bottom,0px);
+  --max-w: 520px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;user-select:none;
+  overflow-x:hidden;
+  padding-bottom:calc(var(--nav-h) + var(--safe-b) + 20px);
+}
+#app{max-width:var(--max-w);margin:0 auto;padding:0 16px}
+
+/* ── Header ── */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  max-width:var(--max-w);margin:0 auto;
+}
+.header h1{font-size:1.1em;font-weight:700}
+.header .date{font-size:.8em;color:var(--text2)}
+
+/* ── Tabs ── */
+.tab-page{display:none}
+.tab-page.active{display:block;animation:fadeIn .25s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Bottom Nav ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:var(--max-w);
+  background:var(--card);border-top:1px solid var(--border);
+  display:flex;z-index:200;
+  padding-bottom:var(--safe-b);
+  box-shadow:0 -2px 12px rgba(0,0,0,.04);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px;cursor:pointer;color:var(--text2);
+  font-size:.7em;gap:2px;transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-item .ico{font-size:1.4em}
+.nav-item.active{color:var(--accent);font-weight:600}
+
+/* ── Cards ── */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  padding:18px;margin-bottom:14px;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.card h3{font-size:.95em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card h3 .ico{font-size:1.2em}
+
+/* ── Quick Stats Row ── */
+.stat-row{display:flex;gap:10px;margin-bottom:14px}
+.stat-card{
+  flex:1;background:var(--card);border-radius:var(--radius);
+  padding:14px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.stat-card .num{font-size:1.8em;font-weight:800;color:var(--accent)}
+.stat-card .lbl{font-size:.7em;color:var(--text2);margin-top:2px}
+
+/* ── Checklist ── */
+.checklist{list-style:none}
+.checklist li{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid #f5f0ea;cursor:pointer;
+  transition:background .15s;
+}
+.checklist li:active{background:#fdf9f3;margin:0 -8px;padding:10px 8px;border-radius:8px}
+.checklist .cb{
+  width:24px;height:24px;border-radius:50%;
+  border:2px solid #d5ccc0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-size:.7em;
+}
+.checklist .cb.done{background:var(--green);border-color:var(--green);color:#fff}
+.checklist .lbl{font-size:.88em;flex:1}
+.checklist .lbl .sub{font-size:.75em;color:var(--text2);display:block}
+.checklist .tag{
+  font-size:.65em;padding:2px 8px;border-radius:10px;
+  font-weight:600;flex-shrink:0;
+}
+.tag-sleep{background:#e8e0f5;color:#7b6ba0}
+.tag-diet{background:var(--green2);color:var(--green)}
+.tag-exercise{background:var(--blue2);color:var(--blue)}
+.tag-mind{background:var(--purple2);color:var(--purple)}
+.tag-env{background:var(--accent2);color:var(--accent)}
+.tag-social{background:#fce4d6;color:#d4875e}
+
+/* ── Week Overview ── */
+.week-row{display:flex;gap:6px;margin-bottom:14px}
+.week-day{
+  flex:1;aspect-ratio:1;border-radius:12px;
+  background:var(--card);border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:.7em;cursor:pointer;transition:all .15s;
+  box-shadow:var(--shadow);
+}
+.week-day.today{border:2px solid var(--accent);background:var(--accent2)}
+.week-day.done{background:var(--green2);border-color:var(--green)}
+.week-day .d-num{font-size:1.4em;font-weight:700}
+.week-day .d-pct{font-size:.65em;color:var(--text2)}
+
+/* ── Month Selector ── */
+.month-selector{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.month-btn{
+  flex-shrink:0;padding:8px 16px;border-radius:20px;
+  border:1px solid var(--border);background:var(--card);
+  font-size:.8em;cursor:pointer;white-space:nowrap;
+  transition:all .15s;box-shadow:var(--shadow);
+}
+.month-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Progress Bar ── */
+.progress-bar{
+  height:8px;background:var(--border);border-radius:4px;
+  overflow:hidden;margin:6px 0 10px;
+}
+.progress-bar .fill{
+  height:100%;border-radius:4px;background:var(--accent);
+  transition:width .4s;
+}
+
+/* ── Entertainment Cards ── */
+.ent-card{
+  display:flex;gap:12px;padding:12px;margin-bottom:8px;
+  background:var(--card);border-radius:12px;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.ent-card .poster{
+  width:60px;height:60px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8em;flex-shrink:0;
+}
+.ent-card .info{flex:1;font-size:.82em}
+.ent-card .info .title{font-weight:700;margin-bottom:2px}
+.ent-card .info .detail{color:var(--text2);font-size:.75em}
+.ent-card .lvl{
+  font-size:.65em;padding:3px 8px;border-radius:8px;
+  font-weight:600;flex-shrink:0;align-self:center;
+}
+
+/* ── Log Entry ── */
+.log-entry{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid #f5f0ea;font-size:.82em;
+}
+.log-entry .log-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+
+/* ── Section ── */
+.section-label{
+  font-size:.75em;text-transform:uppercase;letter-spacing:2px;
+  color:var(--text2);margin:18px 0 8px;font-weight:600;
+}
+
+/* ── Music Tab ── */
+.instrument-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.instrument-badge{
+  padding:4px 12px;border-radius:14px;font-size:.75em;font-weight:600;
+  border:1px solid var(--border);background:var(--card);
+}
+.instrument-badge.active{background:var(--purple2);border-color:var(--purple);color:var(--purple)}
+.music-practice{font-size:.82em;line-height:1.8}
+.music-practice .mp-item{display:flex;align-items:center;gap:8px;padding:5px 0}
+.rb.open{display:block!important}
+
+/* ── Video Script Tab ── */
+.script-chapter{
+  margin-bottom:14px;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.script-ch-header{
+  background:var(--card);padding:14px 18px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:background .15s;
+}
+.script-ch-header:active{background:#fdf9f3}
+.script-ch-header .ch-icon{font-size:2em;flex-shrink:0}
+.script-ch-header .ch-main{flex:1}
+.script-ch-header .ch-main .ch-title{font-weight:700;font-size:.9em}
+.script-ch-header .ch-main .ch-time{font-size:.75em;color:var(--text2)}
+.script-ch-header .ch-arrow{font-size:.8em;color:var(--text2);transition:transform .3s}
+.script-ch-body{display:none;background:#fefdfb;padding:0 18px;border-top:1px solid var(--border)}
+.script-ch-body.open{display:block}
+.script-scene{
+  padding:14px 0;border-bottom:1px solid #f5f0ea;
+}
+.script-scene:last-child{border-bottom:none}
+.script-scene .ss-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;
+}
+.script-scene .ss-id{font-weight:700;font-size:.8em;color:var(--accent)}
+.script-scene .ss-dur{font-size:.7em;color:var(--text2);background:#f5ede3;padding:2px 8px;border-radius:8px}
+.script-scene .ss-visual{font-size:.8em;margin-bottom:4px}
+.script-scene .ss-visual .ss-label{font-size:.7em;color:var(--text2);font-weight:600}
+.script-scene .ss-narrate{
+  font-size:.8em;font-style:italic;color:#5c5540;
+  background:#fdf9f3;padding:10px 14px;border-radius:8px;margin-top:6px;
+  border-left:3px solid var(--accent);
+}
+.script-scene .ss-narrate .ss-role{font-size:.65em;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:3px}
+.ch-summary{
+  text-align:center;padding:10px;font-size:.82em;font-weight:700;color:var(--accent);
+  background:var(--accent2);margin:8px 18px;border-radius:8px;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 20px;border-radius:24px;border:none;
+  font-size:.85em;font-weight:600;cursor:pointer;
+  transition:all .15s;font-family:inherit;
+}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:active{opacity:.8}
+.btn-outline{background:var(--card);color:var(--accent);border:2px solid var(--accent)}
+.btn-sm{padding:6px 14px;font-size:.75em}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:#3d3226;color:#fff;padding:10px 24px;border-radius:24px;
+  font-size:.85em;z-index:999;pointer-events:none;
+  opacity:0;transition:opacity .3s;
+}
+.toast.show{opacity:1}
+
+/* ── Reset button ── */
+.reset-btn{
+  font-size:.7em;color:var(--text2);cursor:pointer;
+  padding:4px 10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--card);font-family:inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:0}
+
+@media(min-width:520px){
+  #app{padding:0}
+  .header{padding:12px 0}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌱 我的工作台</h1>
+  <span class="date" id="headerDate"></span>
+</div>
+
+<div id="app">
+
+<!-- ═══════════════ 今日 TAB ═══════════════ -->
+<div class="tab-page active" id="tab-today">
+  <div class="stat-row">
+    <div class="stat-card" onclick="switchTab('anti')">
+      <div class="num" id="statAntiDay">1</div>
+      <div class="lbl">抗炎 · 第N天</div>
+    </div>
+    <div class="stat-card" onclick="switchTab('english')">
+      <div class="num" id="statEngDay">1</div>
+      <div class="lbl">英语 · 第N天</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statStreak">0</div>
+      <div class="lbl">🔥 连续打卡</div>
+    </div>
+  </div>
+
+  <!-- 今日运动 -->
+  <div class="card" style="background:linear-gradient(135deg,#f5ede3,#fdf8f2)">
+    <h3><span class="ico">🏃</span>今日运动</h3>
+    <div style="font-size:1.4em;font-weight:800;color:var(--accent)" id="todayExercise">—</div>
+    <div style="font-size:.75em;color:var(--text2)">周一力量 · 周二瑜伽 · 周三有氧 · 周四瑜伽 · 周五力量 · 周六有氧 · 周日有氧</div>
+  </div>
+
+  <!-- 今日抗炎清单 -->
+  <div class="card">
+    <h3><span class="ico">🛏️</span>今日抗炎习惯</h3>
+    <ul class="checklist" id="antiChecklist"></ul>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:.8em;color:var(--text2)" id="antiTodayPct">0/10 完成</span>
+    </div>
+  </div>
+
+  <!-- 今日英语清单 -->
+  <div class="card">
+    <h3><span class="ico">📖</span>今日英语任务 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="engMonthLabel">第1月</span></h3>
+    <ul class="checklist" id="engChecklist"></ul>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:.8em;color:var(--text2)" id="engTodayPct">0/5 完成</span>
+    </div>
+  </div>
+
+  <!-- 今日娱乐推荐 -->
+  <div class="card">
+    <h3><span class="ico">🎬</span>今日娱乐推荐 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="entLevelLabel"></span></h3>
+    <div id="todayRec"></div>
+  </div>
+
+  <!-- 今日CS学习 -->
+  <div class="card">
+    <h3><span class="ico">💻</span>今日计算机学习 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="todayCsPhase"></span></h3>
+    <ul class="checklist" id="todayCsList"></ul>
+  </div>
+
+  <!-- 今日音乐 -->
+  <div class="card">
+    <h3><span class="ico">🎵</span>今日音乐练习 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="todayMusicLabel"></span></h3>
+    <ul class="checklist" id="todayMusicList"></ul>
+  </div>
+</div>
+
+<!-- ═══════════════ 抗炎 TAB ═══════════════ -->
+<div class="tab-page" id="tab-anti">
+  <!-- 周选择器 -->
+  <div class="week-row" id="antiWeekRow"></div>
+
+  <!-- 本周详情 -->
+  <div class="card">
+    <h3><span class="ico">📋</span><span id="antiWeekLabel">本周习惯</span></h3>
+    <ul class="checklist" id="antiWeekDetail"></ul>
+  </div>
+
+  <!-- 四周概览 -->
+  <div class="card">
+    <h3><span class="ico">🗓️</span>28天总览</h3>
+    <div id="antiMonthOverview"></div>
+  </div>
+
+  <!-- 运动循环 -->
+  <div class="card">
+    <h3><span class="ico">🏃</span>运动7天循环</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="exerciseCycle"></div>
+  </div>
+
+  <!-- 抗炎食材红榜 -->
+  <div class="card">
+    <h3><span class="ico">🫐</span>抗炎食材红榜 · 每日一种</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:.8em">
+      <span style="background:#e8e0f5;padding:4px 10px;border-radius:12px">🫐 蓝莓</span>
+      <span style="background:#fce4d6;padding:4px 10px;border-radius:12px">🐟 三文鱼</span>
+      <span style="background:#fce4d6;padding:4px 10px;border-radius:12px">🟡 姜黄</span>
+      <span style="background:var(--green2);padding:4px 10px;border-radius:12px">🥦 西兰花</span>
+      <span style="background:#fce4d6;padding:4px 10px;border-radius:12px">🥜 坚果</span>
+      <span style="background:var(--green2);padding:4px 10px;border-radius:12px">🫒 橄榄油</span>
+      <span style="background:var(--green2);padding:4px 10px;border-radius:12px">🍵 绿茶</span>
+      <span style="background:#fce4d6;padding:4px 10px;border-radius:12px">🍅 番茄</span>
+    </div>
+  </div>
+
+  <!-- 本周拍摄任务 -->
+  <div class="card">
+    <h3><span class="ico">🎥</span><span id="videoTaskTitle">本周拍摄任务</span></h3>
+    <div id="videoTasks" style="font-size:.8em;line-height:1.8"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ 英语 TAB ═══════════════ -->
+<div class="tab-page" id="tab-english">
+  <!-- 月份选择 -->
+  <div class="month-selector" id="monthSelector"></div>
+
+  <!-- 当月进度 -->
+  <div class="card">
+    <h3><span class="ico">📊</span>当月进度</h3>
+    <div class="progress-bar"><div class="fill" id="engMonthProgress" style="width:0%"></div></div>
+    <div style="font-size:.8em;color:var(--text2)" id="engMonthProgressText">0/30 天完成</div>
+  </div>
+
+  <!-- NCE 进度 -->
+  <div class="card">
+    <h3><span class="ico">📚</span>新概念英语进度</h3>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+      <span style="font-size:.85em;font-weight:600" id="nceBookLabel">NCE 1</span>
+      <span style="font-size:.75em;color:var(--text2)" id="nceLessonLabel">第 1 / 144 课</span>
+    </div>
+    <div class="progress-bar"><div class="fill" id="nceProgress" style="width:0%"></div></div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn btn-sm btn-outline" onclick="updateNce(-1)">− 上一课</button>
+      <input type="number" id="nceInput" style="width:60px;text-align:center;border:1px solid var(--border);border-radius:8px;padding:4px;font-size:.8em;font-family:inherit" min="1" value="1">
+      <button class="btn btn-sm btn-accent" onclick="updateNce(0)">跳转</button>
+      <button class="btn btn-sm btn-outline" onclick="updateNce(1)">下一课 +</button>
+    </div>
+  </div>
+
+  <!-- 每日英语任务 -->
+  <div class="card">
+    <h3><span class="ico">✅</span>每日英语任务</h3>
+    <ul class="checklist" id="engDetailList"></ul>
+  </div>
+
+  <!-- 当月详细计划 -->
+  <div class="card">
+    <h3><span class="ico">📋</span><span id="engMonthDetailLabel">第1月 · 详细计划</span></h3>
+    <div id="engMonthDetail" style="font-size:.82em;line-height:1.8"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ 音乐 TAB ═══════════════ -->
+<div class="tab-page" id="tab-music">
+  <!-- 今日音乐任务 -->
+  <div class="card" style="background:linear-gradient(135deg,#f5edf5,#fdf8f2)">
+    <h3><span class="ico">🎵</span>今日音乐任务 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="musicDayLabel"></span></h3>
+    <div id="musicTodayTasks" class="music-practice"></div>
+  </div>
+
+  <!-- 8项技能进度 -->
+  <div class="card">
+    <h3><span class="ico">📊</span>各项技能进度</h3>
+    <div id="musicSkills"></div>
+  </div>
+
+  <!-- 7天轮换表 -->
+  <div class="card">
+    <h3><span class="ico">🗓️</span>7天音乐轮换表</h3>
+    <div style="overflow-x:auto">
+      <table style="width:100%;font-size:.7em;border-collapse:collapse;text-align:center">
+        <tr style="background:var(--purple2)">
+          <th style="padding:6px">天</th><th style="padding:6px">DAW</th><th style="padding:6px">乐器</th><th style="padding:6px">其他</th>
+        </tr>
+        <tr><td style="padding:6px;font-weight:700">D1</td><td>🎹 FL Studio</td><td>🎹 钢琴</td><td>📐 乐理</td></tr>
+        <tr style="background:#fdf9f3"><td style="padding:6px;font-weight:700">D2</td><td>🔧 Cubase</td><td>🎸 吉他</td><td>🎤 声乐</td></tr>
+        <tr><td style="padding:6px;font-weight:700">D3</td><td>🎹 FL Studio</td><td>🎻 小提琴</td><td>✍️ 作词</td></tr>
+        <tr style="background:#fdf9f3"><td style="padding:6px;font-weight:700">D4</td><td>🔧 Cubase</td><td>🎹 钢琴</td><td>📐 乐理</td></tr>
+        <tr><td style="padding:6px;font-weight:700">D5</td><td>🎹 FL Studio</td><td>🎸 吉他</td><td>🎤 声乐</td></tr>
+        <tr style="background:#fdf9f3"><td style="padding:6px;font-weight:700">D6</td><td>🔧 Cubase</td><td>🎻 小提琴</td><td>✍️ 作词</td></tr>
+        <tr><td style="padding:6px;font-weight:700">D7</td><td colspan="3" style="color:var(--purple);font-weight:700">🌟 自由创作日：任选你最喜欢的 + 录音/回听</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 学习路线图 -->
+  <div class="card">
+    <h3><span class="ico">🗺️</span>学习路线图</h3>
+    <div id="musicRoadmap"></div>
+  </div>
+
+  <!-- 每日练习记录 -->
+  <div class="card">
+    <h3><span class="ico">📝</span>音乐练习记录</h3>
+    <ul class="checklist" id="musicChecklist"></ul>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:.8em;color:var(--text2)" id="musicTodayPct">0/3 完成</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 娱乐 TAB ═══════════════ -->
+<div class="tab-page" id="tab-entertainment">
+  <div class="card">
+    <h3><span class="ico">🎯</span>看剧三步法</h3>
+    <div style="display:flex;gap:10px;text-align:center;font-size:.78em">
+      <div style="flex:1;background:#f5ede3;padding:12px 8px;border-radius:12px">
+        <div style="font-size:1.5em">🔓</div>
+        <div style="font-weight:700">第1遍</div>
+        <div style="color:var(--text2)">中文字幕<br>理解剧情</div>
+      </div>
+      <div style="flex:1;background:#e8eef5;padding:12px 8px;border-radius:12px">
+        <div style="font-size:1.5em">📖</div>
+        <div style="font-weight:700">第2遍</div>
+        <div style="color:var(--text2)">英文字幕<br>注意表达</div>
+      </div>
+      <div style="flex:1;background:#dce8dd;padding:12px 8px;border-radius:12px">
+        <div style="font-size:1.5em">🎧</div>
+        <div style="font-weight:700">第3遍</div>
+        <div style="color:var(--text2)">关字幕<br>纯靠耳朵</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 当前级别推荐 -->
+  <div class="section-label">📺 当前级别推荐</div>
+  <div id="entRecom"></div>
+
+  <!-- 所有级别 -->
+  <div class="section-label">🎬 全部推荐清单</div>
+  <div class="month-selector" id="entLevelFilter"></div>
+  <div id="entAllList"></div>
+
+  <!-- 观影记录 -->
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ico">📝</span>我的观影/收听记录</h3>
+    <div id="entLog"></div>
+    <button class="btn btn-sm btn-accent" style="margin-top:8px" onclick="addEntLog()">+ 添加记录</button>
+  </div>
+</div>
+
+<!-- ═══════════════ 食谱 TAB ═══════════════ -->
+<div class="tab-page" id="tab-recipe">
+  <!-- 今日吃什么 -->
+  <div class="card" style="background:linear-gradient(135deg,#e8f0e8,#fdf8f2)" id="recipeTodayCard">
+    <h3><span class="ico">🍽️</span>今日三餐 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="recipeDayLabel"></span></h3>
+    <div id="recipeToday"></div>
+  </div>
+
+  <!-- 一周总览 -->
+  <div class="card">
+    <h3><span class="ico">📅</span>一周食谱总览</h3>
+    <div id="recipeWeek"></div>
+  </div>
+
+  <!-- 抗炎食材轮换 -->
+  <div class="card">
+    <h3><span class="ico">🍅</span>每日抗炎食材</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="antiFoodRotation"></div>
+  </div>
+
+  <!-- 采购清单 -->
+  <div class="card">
+    <h3><span class="ico">🛒</span>一周采购清单 <span style="font-size:.65em;color:var(--text2);font-weight:400">一次买完 ~260元</span></h3>
+    <div id="shoppingList"></div>
+  </div>
+
+  <!-- 懒人技巧 -->
+  <div class="card">
+    <h3><span class="ico">⚡</span>懒人省时技巧</h3>
+    <div style="font-size:.8em;line-height:1.8">
+      🔌 <b>电饭煲预约</b>：前一晚放糙米+水，早上自动煮好<br>
+      🥚 <b>蛋一次煮6个</b>：放冰箱，每天拿两个<br>
+      🍠 <b>红薯/紫薯一次蒸5-6个</b>：冷藏，吃时热一下<br>
+      📦 <b>午餐前一晚装好</b>：10分钟装盒，早上拎走<br>
+      🍗 <b>鸡胸肉一次煮3块</b>：撕成丝冷藏，够吃三天<br>
+      🍵 <b>绿茶当水喝</b>：代替所有甜饮料，顺便抗炎<br>
+      🥗 <b>周日清空冰箱</b>：剩菜一起蒸，不浪费
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 计算机学习 TAB ═══════════════ -->
+<div class="tab-page" id="tab-cs">
+  <!-- 当前阶段 -->
+  <div class="card" style="background:linear-gradient(135deg,#e8eef5,#fdf8f2)">
+    <h3><span class="ico">🗺️</span>AI+大数据学习路线 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="csPhaseLabel">4个阶段</span></h3>
+    <div class="month-selector" id="csPhaseSelector" style="margin-bottom:0"></div>
+    <div id="csPhaseDetail" style="font-size:.82em;line-height:1.8;margin-top:10px"></div>
+  </div>
+
+  <!-- 今日学习任务 -->
+  <div class="card">
+    <h3><span class="ico">📋</span>今日学习任务</h3>
+    <ul class="checklist" id="csChecklist"></ul>
+    <div style="text-align:center;margin-top:8px">
+      <span style="font-size:.8em;color:var(--text2)" id="csTodayPct">0/4 完成</span>
+    </div>
+  </div>
+
+  <!-- 项目实战追踪 -->
+  <div class="card">
+    <h3><span class="ico">🛠️</span>项目实战</h3>
+    <div id="csProjects" style="font-size:.82em;line-height:1.8"></div>
+  </div>
+
+  <!-- 技能清单 -->
+  <div class="card">
+    <h3><span class="ico">✅</span>技能清单</h3>
+    <div id="csSkills"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ 阅读 TAB ═══════════════ -->
+<div class="tab-page" id="tab-reading">
+  <!-- 当前进度 -->
+  <div class="card" style="background:linear-gradient(135deg,#f5ede3,#fdf8f2)">
+    <h3><span class="ico">📚</span>阅读进度总览</h3>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="font-size:2.5em;font-weight:800;color:var(--accent)" id="readingDoneCount">0</div>
+      <div style="font-size:.8em;color:var(--text2)">/ <span id="readingTotalCount">21</span> 本已读完</div>
+    </div>
+    <div class="progress-bar" style="margin-top:8px"><div class="fill" id="readingProgress" style="width:0%"></div></div>
+  </div>
+
+  <!-- 板块选择器 -->
+  <div class="month-selector" id="readingSectionSelector"></div>
+
+  <!-- 当前板块书籍列表 -->
+  <div id="readingSectionDetail"></div>
+</div>
+
+<!-- ═══════════════ 视频脚本 TAB ═══════════════ -->
+<div class="tab-page" id="tab-video">
+  <div class="card" style="text-align:center">
+    <div style="font-size:2.5em">🎥</div>
+    <h3>28天抗炎习惯挑战 · 分镜脚本</h3>
+    <div style="font-size:.75em;color:var(--text2)">单集纪录片 · 约16分钟 · 6个章节</div>
+  </div>
+
+  <!-- 第一章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">🎬</div>
+      <div class="ch-main">
+        <div class="ch-title">第一章 · 为什么开始？</div>
+        <div class="ch-time">0:00 — 1:30 · 5个镜头</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 1-A · 黑屏开场</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>黑屏，白色文字逐句浮现。轻微电流声 + 低沉 ambient 音。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>你有没有这种感觉？明明没干什么，就是累。皮肤暗沉、容易长痘、睡够了还是困、情绪忽好忽坏——这些，可能都是<strong>慢性炎症</strong>在作祟。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 1-B · 快速闪回</span><span class="ss-dur">20秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>快速剪辑（每个1-2秒）：深夜刷手机 → 外卖盒 → 瘫沙发 → 对镜看皮肤 → 烦躁叹气。叠加灰黄色滤镜。BGM：节奏紧张有压迫感。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>我看了很多资料后发现，炎症不只是红肿热痛——更多的是一种"低度的、持续的、你感觉不到但身体知道"的状态。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 1-C · 博主出镜</span><span class="ss-dur">25秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>博主面对镜头，自然光，居家环境，中景。柔和侧光。</div>
+        <div class="ss-narrate"><div class="ss-role">🎤 台词</div>所以我要做一个28天的实验。按照抗炎生活方式的科学建议，从作息、饮食、运动、情绪、环境五个维度，彻底调整我的生活习惯。28天，看看我的身体和状态会发生什么变化。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 1-D · 五维度标题卡</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>五个圆形图标依次弹出排列：🛏️作息 → 🥗饮食 → 🏃运动 → 🧠情绪 → 🌿环境，弹跳动画。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 1-E · 邀请观众</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>博主自然微笑，镜头稍微拉近。</div>
+        <div class="ss-narrate"><div class="ss-role">🎤 台词</div>如果你也想试试，欢迎跟我一起打卡。那我们开始吧。</div>
+      </div>
+      <div style="text-align:center;padding:8px;font-size:.7em;color:var(--text2)">🎬 转场：画面模糊 + "DAY 1" 大字弹出</div>
+    </div>
+  </div>
+
+  <!-- 第二章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">🛏️</div>
+      <div class="ch-main">
+        <div class="ch-title">第二章 · 第一周 · 建立秩序</div>
+        <div class="ch-time">1:30 — 5:00 · DAY 1-7</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="ch-summary">关键词：适应 —— 身体在抗议，但也在慢慢接受新的节奏</div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 2-A · DAY 1 夜晚</span><span class="ss-dur">30秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>晚上10:00，手机闹钟响（特写"睡觉时间"）。手机放客厅茶几，走进卧室。床头放一本书，翻两页。10:45关灯。暖黄色床头灯。第一人称+侧面固定机位混合。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第一天晚上10点，我把手机留在客厅，带了一本书进卧室。说实话，刚开始很不习惯，手总想往床头柜摸。但告诉自己——就试一晚。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 2-B · DAY 2 清晨</span><span class="ss-dur">40秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>早上6:50，闹钟响。靠床头闭眼冥想5分钟。窗外晨光微亮。睁眼后走到窗边拉开窗帘，推开窗户，深呼吸。特写：闭眼面部（紧张→放松）→窗外晨光→窗户推开时的一缕风。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第二天6点50分，闹钟响了。没有立刻下床，靠在床头闭上眼睛，专注呼吸——5分钟冥想。我以前觉得冥想很玄，其实做起来，就是给自己一个安静的过渡。然后开窗通风30分钟。早上的空气是凉的，很新鲜，整个人一下子就醒了。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 2-C · DAY 2 白天</span><span class="ss-dur">35秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>早餐俯拍：杂粮粥+水煮蛋+蓝莓+核桃。运动快剪：哑铃弯举→深蹲→弹力带划船→平板支撑（每个2-3秒）。BGM：轻快节奏感音乐。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>早餐——杂粮粥、水煮蛋、蓝莓。蓝莓是今天的抗炎食材。第一天运动：力量训练，30分钟。不追求重量，重点是让身体动起来。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 2-D · DAY 5 周五社交</span><span class="ss-dur">45秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>和朋友在咖啡馆/公园散步。面对面认真聊天，眼神交流。偶尔笑，偶尔沉思。夕阳下碰杯。固定机位远景+手持近景。保留朋友对话作为环境音。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>周五。这周最期待的一天——和朋友深度交流。不是"吃了吗""最近咋样"那种，而是真正聊了最近的状态、困惑、成长。好的社交不只是"出去玩"，是情绪的出口。聊完之后整个人能量都不一样了。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 2-E · DAY 7 晚间记录</span><span class="ss-dur">35秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>博主坐在书桌前，翻开日计划本，镜头推进到笔尖。特写手写内容："Day3 有点烦躁，Day5 特别开心，Day7 终于平静了。"</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>每天晚上，花5分钟记录情绪和回顾这一天。一周下来，我发现一个很有意思的事——前三天情绪起伏很大，尤其是戒手机的那一小时，焦躁得不行。但到第五天，睡前竟然没那么想刷手机了。</div>
+      </div>
+      <div class="ch-summary">🎤 第一周小结：关键词——<b>适应</b>。身体在抗议，但也在慢慢接受新的节奏。</div>
+    </div>
+  </div>
+
+  <!-- 第三章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">✨</div>
+      <div class="ch-main">
+        <div class="ch-title">第三章 · 第二周 · 身体开始回应</div>
+        <div class="ch-time">5:00 — 8:30 · DAY 8-14</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="ch-summary">关键词：反馈 —— 身体在用好的变化告诉你，这条路没走错</div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 3-A · 自然醒</span><span class="ss-dur">30秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>镜头对准闹钟显示6:42（还没响）。博主自然醒来，精神饱满。看手表睡眠数据。字幕："深度睡眠比第一周多了40分钟"。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第二周第3天，我居然在闹钟响之前就醒了。打开手表一看，深度睡眠比第一周多了差不多40分钟。身体在用它的方式告诉我：这个节奏是对的。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 3-B · 运动循环</span><span class="ss-dur">40秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>运动蒙太奇：力量日举铁→有氧日跑步→瑜伽日拉伸。背景切换：家里、户外跑道、瑜伽垫。汗水、呼吸、舒展动作。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>这一周完整走了一遍七天运动循环。力量让你有掌控感，有氧让你呼吸自由，瑜伽教你放松。以前觉得运动是任务，现在开始期待每天那一身汗。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 3-C · 抗炎食材</span><span class="ss-dur">50秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>厨房桌上依次摆出抗炎食材：蓝莓、三文鱼、姜黄粉、西兰花、坚果、橄榄油、绿茶、番茄。手拿起每种展示。切到做饭画面：姜黄杂粮饭、蒸三文鱼、清炒西兰花。成品俯拍色彩丰富。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>饮食开始找到节奏了。今天主食是一半糙米一半白米，蒸一块三文鱼，加一勺姜黄粉——姜黄是非常强的天然抗炎食材。关键是，我开始享受做饭了，不是完成任务，是真的在照顾自己。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 3-D · 皮肤对比</span><span class="ss-dur">25秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>分屏对比：左侧DAY 1皮肤（暗沉、T区油光），右侧DAY 14皮肤（透亮、平滑）。镜头慢慢推近。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第14天照镜子的时候，皮肤状态明显不一样了。不是那种夸张的变化，但暗沉少了，T区出油也少了。抗炎——真的从脸上能看见。</div>
+      </div>
+      <div class="ch-summary">🎤 第二周小结：关键词——<b>反馈</b>。身体在用好的变化告诉我，这条路没走错。</div>
+    </div>
+  </div>
+
+  <!-- 第四章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">💪</div>
+      <div class="ch-main">
+        <div class="ch-title">第四章 · 第三周 · 最难的一周</div>
+        <div class="ch-time">8:30 — 12:00 · DAY 15-21</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="ch-summary">关键词：惯性 —— 习惯长在身上了，不靠意志力在撑</div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 4-A · 崩溃时刻</span><span class="ss-dur">40秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>晚上9点多，博主拖着疲惫步伐走在街上。下着小雨。路过便利店，玻璃门反射暖光。在货架前站了很久——薯片、奶茶触手可及。手握紧又松开。最后转身空手走出。冷白荧光灯vs暖黄路灯的冷暖对比。BGM：安静钢琴。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第三周的某一天，加班到很晚。经过便利店的时候，脑子里全是"买瓶奶茶吧，反正就这一次"。站在货架前停了整整一分钟。最后，还是什么都没拿。回去的路上给自己做了15分钟瑜伽——不是计划表上的任务，就是让自己舒服一点。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 4-B · 日计划特写</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>安静环境，手翻开日计划本。特写当天那一页，只有一句话。字迹不算工整，但有力量。字幕大字覆盖画面：<strong>"今天很崩溃。但我坚持了。"</strong></div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 4-C · 朋友对话</span><span class="ss-dur">50秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>和同一朋友见面（呼应第一周）。朋友说："你最近好像不太一样了，松弛了很多。以前你总是绷着的。"博主愣一下，然后笑了。傍晚天色。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>周五和朋友见面。她说了一句话让我特别触动："你最近好像松弛了很多，以前你总是绷着的。"我突然意识到，抗炎不只是吃什么、几点睡，而是整个人不再"对抗"了——和自己的身体和解了。</div>
+      </div>
+      <div class="ch-summary">🎤 第三周小结：关键词——<b>惯性</b>。习惯开始长在身上了。不是靠意志力在撑，而是不做这些事，反而不舒服。</div>
+    </div>
+  </div>
+
+  <!-- 第五章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">🌟</div>
+      <div class="ch-main">
+        <div class="ch-title">第五章 · 第四周 · 这才是日常</div>
+        <div class="ch-time">12:00 — 15:30 · DAY 22-28</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="ch-summary">关键词：自由 —— 好的习惯不是束缚，是自由</div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 5-A · 完美一天的流畅节奏</span><span class="ss-dur">60秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>一镜到底风格快剪：6:50自然醒→靠床冥想→拉开窗帘阳光洒入→厨房备早餐→晨光中锻炼→白天工作→晚上8点开窗→书桌前写日计划→10点放手机→关灯。BGM：轻松流畅acoustic吉他。色调明亮温暖。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>第四周，所有习惯变成了一个流畅的节奏。不需要闹钟督促、不需要意志力支撑。每天11点之前自然困，早上7点之前自然醒。这就是新的日常。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 5-B · 抗炎食材红榜</span><span class="ss-dur">40秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>餐桌俯拍，八种食材整齐排列。手依次拿起每种，弹出资讯标签。最后全部装进好看的盘子。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>四周下来，总结一个抗炎食材红榜：🫐蓝莓（花青素）、🐟三文鱼（Omega-3）、🟡姜黄（姜黄素）、🥦西兰花（萝卜硫素）、🥜坚果（健康脂肪）、🫒橄榄油（橄榄多酚）、🍵绿茶（儿茶素）、🍅番茄（番茄红素）。每天至少一种，轮换着吃，不单调。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 5-C · 28天对比</span><span class="ss-dur">45秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>分屏动画，左侧DAY 1 / 右侧DAY 28，数据逐条对比弹出。每条配"打卡"音效。</div>
+        <div style="font-size:.78em;margin:8px 0;line-height:1.8">
+          😴 入睡：凌晨1:00 → 晚上10:45<br>
+          ⚡ 晨起：困倦赖床 → 清醒自然醒<br>
+          😊 皮肤：暗沉T区油 → 透亮平滑<br>
+          🧘 情绪：烦躁焦虑 → 稳定松弛<br>
+          🍩 甜食渴望：每天想喝奶茶 → 几乎不想了<br>
+          ⚖️ 体重：— → 轻了2公斤
+        </div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 5-D · 结尾出镜</span><span class="ss-dur">30秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>博主面对镜头，真诚微笑。清晨阳光照进房间，窗户开着，窗帘轻轻飘动。</div>
+        <div class="ss-narrate"><div class="ss-role">🎤 台词</div>我会继续吗？会的。不是因为这28天改变了我的生活——而是我发现，好的习惯不是束缚，是自由。你的身体，真的会感谢你。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第六章 -->
+  <div class="script-chapter">
+    <div class="script-ch-header" onclick="toggleChapter(this)">
+      <div class="ch-icon">💚</div>
+      <div class="ch-main">
+        <div class="ch-title">第六章 · 结尾 · 邀请观众</div>
+        <div class="ch-time">15:30 — 16:30</div>
+      </div>
+      <div class="ch-arrow">▼</div>
+    </div>
+    <div class="script-ch-body">
+      <div class="ch-summary">你的28天，从什么时候开始？</div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 6-A · 空镜串烧</span><span class="ss-dur">30秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>慢节奏空镜：清晨第一缕阳光照在床单上→一杯热水→门口运动鞋→窗外树叶微风中摇晃→翻开的日记本→夕阳城市天际线。BGM：温柔钢琴渐弱。色调温暖柔和金色。</div>
+        <div class="ss-narrate"><div class="ss-role">🎙 旁白</div>如果你也想试试，不需要28天全部做到。挑一个你最想改变的习惯——比如今晚把手机放远一点，或者明天早上推开窗户通个风。</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 6-B · 最后邀请</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>博主面对镜头，最后一笑。</div>
+        <div class="ss-narrate"><div class="ss-role">🎤 台词</div>我会把这28天的完整计划放在评论区。欢迎你来打卡——告诉我，你的第一天从哪天开始？</div>
+      </div>
+      <div class="script-scene">
+        <div class="ss-header"><span class="ss-id">镜头 6-C · 片尾</span><span class="ss-dur">15秒</span></div>
+        <div class="ss-visual"><span class="ss-label">画面：</span>黑屏，白色大字浮现：<strong>28天抗炎习惯挑战 · 你的身体会感谢你</strong>。订阅按钮动画。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拍摄备忘 -->
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ico">📋</span>拍摄备忘清单</h3>
+    <div style="font-size:.8em;line-height:1.8">
+      <div style="font-weight:700;color:var(--accent);margin-top:4px">每天必拍：</div>
+      🛏️ 起床：闹钟响+冥想片段+推开窗<br>
+      🥗 三餐：至少拍一顿（俯拍/45°自然光）<br>
+      🏃 运动：2-3个镜头（固定+自拍杆）<br>
+      📝 日计划：写日计划的手部特写（台灯俯拍）<br>
+      😴 睡前：放手机到客厅的动作+关灯<br><br>
+      <div style="font-weight:700;color:var(--accent)">尽量多拍：</div>
+      🌤️ 窗外天气变化（同角度不同天）<br>
+      🪞 皮肤状态（同光线同角度每周一次）<br>
+      😊 情绪瞬间（笑/发呆/深呼吸）<br>
+      📸 和朋友合影或碰杯
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 统计 TAB ═══════════════ -->
+<div class="tab-page" id="tab-stats">
+  <div class="stat-row">
+    <div class="stat-card"><div class="num" id="statAntiStreak">0</div><div class="lbl">🔥 抗炎连续</div></div>
+    <div class="stat-card"><div class="num" id="statEngStreak">0</div><div class="lbl">🔥 英语连续</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="num" id="statAntiRate">0%</div><div class="lbl">抗炎完成率</div></div>
+    <div class="stat-card"><div class="num" id="statEngRate">0%</div><div class="lbl">英语完成率</div></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ico">🫐</span>抗炎习惯 · 完成趋势</h3>
+    <div id="antiTrend" style="display:flex;gap:3px;align-items:flex-end;height:80px"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ico">📖</span>英语学习 · 完成趋势</h3>
+    <div id="engTrend" style="display:flex;gap:3px;align-items:flex-end;height:80px"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="ico">🎬</span>娱乐记录统计</h3>
+    <div style="font-size:.85em" id="entStats"></div>
+  </div>
+
+  <div style="text-align:center;margin:20px 0">
+    <button class="reset-btn" onclick="resetAll()">🔄 重置所有数据</button>
+  </div>
+</div>
+
+</div> <!-- /app -->
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <div class="nav-item active" data-tab="today" onclick="switchTab('today')">
+    <span class="ico">🏠</span>今日
+  </div>
+  <div class="nav-item" data-tab="anti" onclick="switchTab('anti')">
+    <span class="ico">🛏️</span>抗炎
+  </div>
+  <div class="nav-item" data-tab="english" onclick="switchTab('english')">
+    <span class="ico">📖</span>英语
+  </div>
+  <div class="nav-item" data-tab="music" onclick="switchTab('music')">
+    <span class="ico">🎵</span>音乐
+  </div>
+  <div class="nav-item" data-tab="entertainment" onclick="switchTab('entertainment')">
+    <span class="ico">🎬</span>娱乐
+  </div>
+  <div class="nav-item" data-tab="video" onclick="switchTab('video')">
+    <span class="ico">🎥</span>视频
+  </div>
+  <div class="nav-item" data-tab="recipe" onclick="switchTab('recipe')">
+    <span class="ico">🍽️</span>食谱
+  </div>
+  <div class="nav-item" data-tab="cs" onclick="switchTab('cs')">
+    <span class="ico">💻</span>学习
+  </div>
+  <div class="nav-item" data-tab="reading" onclick="switchTab('reading')">
+    <span class="ico">📚</span>阅读
+  </div>
+  <div class="nav-item" data-tab="stats" onclick="switchTab('stats')">
+    <span class="ico">📊</span>统计
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const TODAY = new Date().toISOString().split('T')[0];
+const STORAGE_KEY = 'wb_data_v2';
+
+const ANTI_HABITS = [
+  {id:'sleep',label:'23:00前入睡 + 7:00前起床',tag:'tag-sleep'},
+  {id:'nophone',label:'睡前1小时远离手机',tag:'tag-sleep'},
+  {id:'meditate',label:'晨起冥想5分钟',tag:'tag-sleep'},
+  {id:'windowAm',label:'起床开窗通风30分钟',tag:'tag-env'},
+  {id:'windowPm',label:'晚上20:00-20:30开窗通风',tag:'tag-env'},
+  {id:'noprocess',label:'不吃加工食品',tag:'tag-diet'},
+  {id:'nosugar',label:'不喝甜饮料',tag:'tag-diet'},
+  {id:'grains',label:'主食杂粮谷物占比≥50%',tag:'tag-diet'},
+  {id:'antifood',label:'摄入1种抗炎食材',tag:'tag-diet'},
+  {id:'exercise',label:'今日运动完成',tag:'tag-exercise'},
+  {id:'social',label:'周五深度社交(仅周五)',tag:'tag-social',onlyFriday:true},
+  {id:'journal',label:'情绪记录+日计划回顾',tag:'tag-mind'},
+];
+
+const ENG_TASKS_BY_MONTH = {
+  1:[
+    {id:'brainsoak',label:'泡脑子 30-60分钟（儿童节目/慢速播客）'},
+    {id:'toolbox',label:'练开口工具箱短句'},
+    {id:'pronounce',label:'发音训练 7个音'},
+    {id:'nce',label:'新概念1 新课（当天课文听+跟读+模仿）'},
+    {id:'selftalk',label:'自言自语用英语描述日常'},
+  ],
+  2:[
+    {id:'brainsoak',label:'泡脑子 + 场景听力'},
+    {id:'gluewords',label:'胶水词训练（and/but/because等）'},
+    {id:'pronounce',label:'发音训练 继续推进'},
+    {id:'nce',label:'新概念1 后半（听完+跟读）'},
+    {id:'dialogue',label:'跟英语家长对话 每天至少5分钟'},
+  ],
+  3:[
+    {id:'brainsoak',label:'泡脑子 NCE2课文反复听'},
+    {id:'nce',label:'新概念2 新课（听→理解→跟读）'},
+    {id:'writing',label:'英语写作（改写课文故事，3-5句）'},
+    {id:'spelling',label:'拼写规律训练（71个字母组合）'},
+    {id:'dialogue',label:'跟英语家长讲今天读的故事'},
+  ],
+  4:[
+    {id:'brainsoak',label:'泡脑子 NCE2复习'},
+    {id:'nce',label:'新概念2 后半（听+跟读+模仿）'},
+    {id:'bracket',label:'括号法拆长句训练'},
+    {id:'metaphor',label:'找比喻+地道表达'},
+    {id:'dialogue',label:'用学的比喻跟英语家长聊天'},
+  ],
+  5:[
+    {id:'brainsoak',label:'泡脑子 NCE3课文'},
+    {id:'nce',label:'新概念3 新课深度学习'},
+    {id:'writing',label:'写作 100-200词短文'},
+    {id:'dialogue',label:'深度讨论课文话题'},
+    {id:'entertainment',label:'娱乐输入（电影/剧/播客）'},
+  ],
+  6:[
+    {id:'brainsoak',label:'泡脑子 NCE3复习'},
+    {id:'nce',label:'新概念3 最后30课'},
+    {id:'dialogue',label:'跟英语家长1-2小时对话'},
+    {id:'writing',label:'每日英语日记或短文'},
+    {id:'entertainment',label:'每天一部英语电影/剧'},
+  ],
+};
+
+const ENT_RECOM = [
+  {level:1,label:'第1-2月',type:'🎬动画',items:[
+    {title:'Peppa Pig 小猪佩奇',desc:'语速慢、句子短、画面对应台词',poster:'🐷'},
+    {title:'Extra English',desc:'给初学者的搞笑剧，语速慢有字幕',poster:'🎭'},
+    {title:'6 Minute English (BBC)',desc:'每期6分钟，慢速对话，有文本',poster:'🎧'},
+    {title:'ESL Pod',desc:'语速很慢，每期解释一个主题',poster:'🎙️'},
+  ]},
+  {level:2,label:'第3-4月',type:'📺情景剧',items:[
+    {title:'Friends 老友记',desc:'日常对话、语速适中（开英文字幕）',poster:'☕'},
+    {title:'BBC Earth 纪录片',desc:'旁白语速慢、发音标准',poster:'🌍'},
+    {title:'Luke\'s English Podcast',desc:'英音、话题广泛、有文本',poster:'🎧'},
+    {title:'The English We Speak (BBC)',desc:'每期3分钟讲一个地道表达',poster:'💬'},
+  ]},
+  {level:3,label:'第5-6月',type:'🎥电影/深度',items:[
+    {title:'TED Talks',desc:'完整演讲、带字幕、话题多样',poster:'🎤'},
+    {title:'The Crown / Ted Lasso',desc:'多元口音、情节丰富',poster:'👑'},
+    {title:'Modern Love (播客)',desc:'真实故事、情感丰富、语速正常',poster:'💝'},
+    {title:'Stuff You Should Know',desc:'两人对话科普、美音、轻松',poster:'🎧'},
+  ]},
+];
+
+// 按星期：周日=0, 周一=1, ... 周六=6
+const EXERCISE_CYCLE = ['有氧 🏃','力量训练 🏋️','瑜伽 🧘','有氧 🏃','瑜伽 🧘','力量训练 🏋️','有氧 🏃'];
+const EXERCISE_LABELS = ['周日有氧','周一力量','周二瑜伽','周三有氧','周四瑜伽','周五力量','周六有氧'];
+
+// ═══════════════ MUSIC DATA ═══════════════
+const MUSIC_ROTATION = [
+  {daw:'FL Studio 🎹', instrument:'钢琴 🎹', other:'乐理 📐'},
+  {daw:'Cubase 🔧', instrument:'吉他 🎸', other:'声乐 🎤'},
+  {daw:'FL Studio 🎹', instrument:'小提琴 🎻', other:'作词 ✍️'},
+  {daw:'Cubase 🔧', instrument:'钢琴 🎹', other:'乐理 📐'},
+  {daw:'FL Studio 🎹', instrument:'吉他 🎸', other:'声乐 🎤'},
+  {daw:'Cubase 🔧', instrument:'小提琴 🎻', other:'作词 ✍️'},
+  {daw:'自由创作 🌟', instrument:'任选 ❤️', other:'录音/回听 🎧'},
+];
+
+const MUSIC_SKILLS = [
+  {id:'flstudio', name:'FL Studio', icon:'🎹', cat:'DAW', desc:'电子音乐制作、编曲、混音'},
+  {id:'cubase', name:'Cubase', icon:'🔧', cat:'DAW', desc:'录音、混音、母带处理'},
+  {id:'piano', name:'钢琴', icon:'🎹', cat:'乐器', desc:'和弦、指法、即兴伴奏'},
+  {id:'violin', name:'小提琴', icon:'🎻', cat:'乐器', desc:'弓法、音准、揉弦'},
+  {id:'guitar', name:'吉他', icon:'🎸', cat:'乐器', desc:'和弦转换、指弹、扫弦'},
+  {id:'vocal', name:'声乐', icon:'🎤', cat:'演唱', desc:'气息、发声、音准、表现力'},
+  {id:'theory', name:'乐理', icon:'📐', cat:'理论', desc:'音阶、和声、节奏、视唱练耳'},
+  {id:'lyrics', name:'作词', icon:'✍️', cat:'创作', desc:'押韵、结构、意象、叙事'},
+];
+
+const MUSIC_TASKS = [
+  {id:'daw', label:'DAW练习（30分钟）'},
+  {id:'instrument', label:'乐器练习（30分钟）'},
+  {id:'other', label:'其他任务（15分钟）'},
+];
+
+const MUSIC_ROADMAP = {
+  flstudio:[
+    '✅ 第1周：安装FL Studio，熟悉界面布局',
+    '✅ 第2周：学钢琴卷帘窗，写第一条旋律',
+    '✅ 第3周：学步进音序器，做第一个鼓组',
+    '✅ 第4周：学混音器，EQ和压缩基础',
+    '🎯 第2月：完整编曲一首电子音乐',
+    '🎯 第3月：学Sytrus合成器，设计自己的音色',
+    '🎯 第6月：独立完成一首完整的电子音乐作品',
+  ],
+  cubase:[
+    '✅ 第1周：安装Cubase，设置声卡和MIDI',
+    '✅ 第2周：学录音轨道，录第一段音频',
+    '✅ 第3周：学MIDI编辑，用虚拟乐器',
+    '✅ 第4周：学调音台，分组和发送效果',
+    '🎯 第2月：完整录制+混音一首歌',
+    '🎯 第3月：学自动化曲线，动态混音',
+    '🎯 第6月：独立完成录音→混音→母带全流程',
+  ],
+  piano:[
+    '✅ 基础：正确坐姿手型+五指练习',
+    '✅ 和弦：大三/小三和弦+转位',
+    '✅ 节奏：节拍器跟练，速度循序渐进',
+    '🎯 第2月：能弹3首简单曲子',
+    '🎯 第4月：能即兴伴奏流行歌',
+  ],
+  violin:[
+    '✅ 基础：正确持琴+持弓+空弦练习',
+    '✅ 音准：一把位音阶，贴指位贴纸辅助',
+    '✅ 弓法：分弓→连弓→顿弓',
+    '🎯 第3月：能拉简单旋律（小星星/欢乐颂）',
+    '🎯 第6月：能演奏完整曲子',
+  ],
+  guitar:[
+    '✅ 基础：正确持琴+右手拨弦+左手按弦',
+    '✅ 和弦：C/Am/F/G/Em/Dm 转换练习',
+    '✅ 节奏：八分音符扫弦+节拍器',
+    '🎯 第2月：能弹唱3首歌',
+    '🎯 第4月：能指弹简单曲子',
+  ],
+  vocal:[
+    '✅ 呼吸：腹式呼吸+气息支撑',
+    '✅ 发声：哼鸣→开口音→元音练习',
+    '✅ 音准：跟钢琴唱音阶，录音对比',
+    '🎯 第2月：完整唱好3首歌',
+    '🎯 第4月：掌握混声和头声',
+  ],
+  theory:[
+    '✅ 音阶：大调/小调音阶结构',
+    '✅ 和声：三和弦/七和弦/和弦进行(I-IV-V-I)',
+    '✅ 节奏：四分/八分/十六分/三连音/附点',
+    '✅ 读谱：高音谱号+低音谱号视读',
+    '🎯 第3月：能分析和弦进行，能视唱简单旋律',
+  ],
+  lyrics:[
+    '✅ 押韵：尾韵/内韵/半韵',
+    '✅ 结构：主歌→副歌→桥段→尾声',
+    '✅ 意象：用画面和故事代替抽象表达',
+    '✅ 节奏：词句音节和旋律节奏的配合',
+    '🎯 第2月：写出第一首完整的歌词',
+    '🎯 第4月：积累10首歌词作品',
+  ],
+};
+
+// ═══════════════ RECIPE DATA ═══════════════
+const WEEK_RECIPES = [
+  {day:'周一', breakfast:'燕麦粥 + 水煮蛋 + 小番茄', breakfastHow:'燕麦开水泡3分钟；蛋煮8分钟；小番茄抓一把', lunch:'鸡胸肉撕丝 + 蒸红薯 + 黄瓜条', lunchHow:'前一晚鸡胸肉水煮10分钟撕丝装盒；红薯蒸好装盒；黄瓜切条。冷吃OK', dinner:'番茄豆腐菌菇汤 + 糙米饭', dinnerHow:'水烧开→番茄+豆腐+金针菇+姜片+盐，煮10分钟', antifood:'🍅 番茄'},
+  {day:'周二', breakfast:'全麦面包 + 水煮蛋 + 苹果', breakfastHow:'蛋煮8分钟，苹果直接啃，面包两片', lunch:'蒸巴沙鱼 + 蒸西兰花胡萝卜 + 糙米饭', lunchHow:'鱼抹姜丝生抽，和菜一起上蒸锅12分钟。前一晚做好装盒', dinner:'紫薯鸡蛋汤 + 玉米', dinnerHow:'水烧开→紫薯切块煮15分钟→打蛋花→玉米一起煮', antifood:'🥦 西兰花'},
+  {day:'周三', breakfast:'燕麦 + 香蕉切片 + 核桃 + 绿茶', breakfastHow:'燕麦泡好铺香蕉片、撒核桃碎，泡杯绿茶', lunch:'豆腐菠菜蛋花汤 + 红薯', lunchHow:'水烧开→豆腐+菠菜+蛋花+盐。装保温杯，红薯带着', dinner:'鸡胸肉蒸蔬菜拼盘 + 糙米饭', dinnerHow:'鸡胸肉切片+西兰花+胡萝卜蒸12分钟，淋橄榄油生抽', antifood:'🥜 核桃'},
+  {day:'周四', breakfast:'蒸紫薯 + 水煮蛋 + 小番茄', breakfastHow:'紫薯蒸20分钟（前一晚预约电饭煲），蛋一起煮', lunch:'巴沙鱼豆腐汤 + 糙米饭', lunchHow:'水烧开→鱼块+豆腐+番茄+姜片，10分钟。装保温杯', dinner:'菌菇蒸蛋 + 蒸玉米 + 黄瓜', dinnerHow:'鸡蛋打散+香菇碎+生抽蒸10分钟。玉米一起蒸', antifood:'🍅 小番茄'},
+  {day:'周五', breakfast:'燕麦 + 水煮蛋 + 苹果 + 南瓜子', breakfastHow:'燕麦泡好，蛋煮好，苹果啃，撒南瓜子', lunch:'鸡胸肉蔬菜汤 + 红薯', lunchHow:'水烧开→鸡胸肉片+番茄+菠菜+姜黄粉一勺。装保温杯', dinner:'🌟 周五社交日 · 出去吃！', dinnerHow:'注意不喝甜饮料就行 🎉', antifood:'🟡 姜黄'},
+  {day:'周六', breakfast:'玉米 + 水煮蛋 + 香蕉', breakfastHow:'玉米煮15分钟，蛋一起煮', lunch:'蒸豆腐菌菇拼盘 + 紫薯', lunchHow:'豆腐+香菇+西兰花上蒸锅10分钟，淋生抽橄榄油。紫薯带着', dinner:'番茄鸡蛋汤 + 糙米饭', dinnerHow:'水烧开→番茄煮烂→打蛋花→盐+姜，8分钟', antifood:'🍄 菌菇'},
+  {day:'周日', breakfast:'全麦面包 + 水煮蛋 + 小番茄 + 绿茶', breakfastHow:'3分钟搞定', lunch:'大杂烩清蒸（清空冰箱）', lunchHow:'所有剩菜洗洗切切上蒸锅15分钟，淋橄榄油生抽', dinner:'紫薯燕麦粥 + 水煮蛋', dinnerHow:'紫薯切块+燕麦+水煮15分钟到浓稠，撒坚果碎', antifood:'🍠 紫薯'},
+];
+
+const SHOPPING_LIST = [
+  {cat:'🥚 蛋奶', items:[{name:'鸡蛋',qty:'12个',price:'~15元'}]},
+  {cat:'🍗 肉鱼豆', items:[{name:'鸡胸肉',qty:'3块',price:'~20元'},{name:'冷冻巴沙鱼',qty:'2块',price:'~16元'},{name:'豆腐',qty:'4块',price:'~8元'}]},
+  {cat:'🌾 主食', items:[{name:'燕麦片',qty:'1小袋',price:'~12元'},{name:'糙米',qty:'1小袋(2斤)',price:'~10元'},{name:'红薯',qty:'4个',price:'~8元'},{name:'紫薯',qty:'3个',price:'~6元'},{name:'玉米',qty:'3根',price:'~9元'},{name:'全麦面包',qty:'1袋',price:'~10元'}]},
+  {cat:'🥬 蔬菜', items:[{name:'西兰花',qty:'1颗',price:'~8元'},{name:'菠菜',qty:'2把',price:'~6元'},{name:'番茄',qty:'6个',price:'~10元'},{name:'胡萝卜',qty:'4根',price:'~5元'},{name:'黄瓜',qty:'3根',price:'~6元'}]},
+  {cat:'🍄 菌菇', items:[{name:'香菇/金针菇',qty:'2盒',price:'~10元'}]},
+  {cat:'🍅 抗炎替代', items:[{name:'小番茄',qty:'2盒',price:'~16元'}]},
+  {cat:'🍎 水果', items:[{name:'香蕉',qty:'4根',price:'~8元'},{name:'苹果',qty:'3个',price:'~10元'}]},
+  {cat:'🥜 坚果', items:[{name:'核桃/南瓜子',qty:'1小袋',price:'~15元'}]},
+  {cat:'🧂 调料（长期用）', items:[{name:'姜',qty:'1块',price:'~3元'},{name:'蒜',qty:'1头',price:'~3元'},{name:'橄榄油',qty:'1小瓶',price:'~30元'},{name:'生抽',qty:'1瓶',price:'~8元'},{name:'醋',qty:'1瓶',price:'~6元'},{name:'盐',qty:'1包',price:'~2元'},{name:'姜黄粉',qty:'1小罐',price:'~15元'},{name:'绿茶包',qty:'1盒',price:'~15元'}]},
+];
+
+const ANTI_FOODS_WEEK = ['🍅 番茄','🥦 西兰花','🥜 核桃','🍅 小番茄','🟡 姜黄','🍄 菌菇','🍠 紫薯'];
+
+const EXERCISE_ICONS = ['🏃','🏋️','🧘','🏃','🧘','🏋️','🏃'];
+
+// ═══════════════ CS LEARNING DATA ═══════════════
+const CS_PHASES = [
+  {id:1, name:'编程基础', icon:'🔵', time:'2-3个月', desc:'打好编程地基，这是最重要的一步', tasks:[
+    {name:'Python', sub:'B站"黑马程序员Python入门"，能写200行代码不报错'},
+    {name:'Linux基础', sub:'B站"韩顺平Linux"，会装系统、敲命令行'},
+    {name:'Git', sub:'B站"Git入门"2小时，能把代码传到GitHub'},
+    {name:'数学补充', sub:'线性代数基础+概率统计基础，看懂矩阵和概率即可'},
+  ]},
+  {id:2, name:'数据处理', icon:'🟢', time:'3-4个月', desc:'大数据的基本功，数据处理是核心', tasks:[
+    {name:'SQL', sub:'B站搜"SQL教程"，能写多表查询'},
+    {name:'NumPy + Pandas', sub:'B站"Pandas数据分析"，用Python处理表格数据'},
+    {name:'Matplotlib', sub:'跟Pandas一起学，能把数据画成图'},
+    {name:'Hadoop入门', sub:'B站搜"Hadoop入门"，理解分布式存储'},
+  ]},
+  {id:3, name:'机器学习', icon:'🟡', time:'3-4个月', desc:'从调包到理解原理，逐步深入', tasks:[
+    {name:'机器学习基础', sub:'吴恩达Machine Learning（B站有搬运），决策树/回归/聚类'},
+    {name:'Scikit-learn', sub:'B站"sklearn教程"，用Python调包跑模型'},
+    {name:'深度学习入门', sub:'B站"PyTorch入门"或"TensorFlow入门"，跑通一个神经网络'},
+    {name:'Spark入门', sub:'B站"Spark教程"，大数据处理框架'},
+  ]},
+  {id:4, name:'实战项目', icon:'🔴', time:'持续', desc:'每个阶段做一个项目放GitHub，这是简历上最重要的东西', tasks:[
+    {name:'Python阶段项目', sub:'用Python自动整理工作台数据，做个分析小工具'},
+    {name:'数据处理项目', sub:'找公开数据集，清洗→分析→画图→写结论'},
+    {name:'ML项目', sub:'Kaggle的Titanic或房价预测，跑通完整流程'},
+    {name:'DL项目', sub:'做一个图片分类器或文本情感分析'},
+  ]},
+];
+
+const CS_DAILY_TASKS = [
+  {id:'coding', label:'Python编程学习（2小时）'},
+  {id:'practice', label:'敲代码练习/做项目（1.5小时）'},
+  {id:'auxiliary', label:'辅助技能：Linux/SQL/Git交替（1小时）'},
+  {id:'reading', label:'技术阅读/文档（30分钟）'},
+];
+
+const CS_SKILLS_LIST = [
+  {name:'Python', cat:'核心编程'},
+  {name:'Linux', cat:'环境工具'},
+  {name:'Git/GitHub', cat:'环境工具'},
+  {name:'SQL', cat:'数据处理'},
+  {name:'Pandas/NumPy', cat:'数据处理'},
+  {name:'Hadoop', cat:'大数据'},
+  {name:'Spark', cat:'大数据'},
+  {name:'Scikit-learn', cat:'机器学习'},
+  {name:'PyTorch/TensorFlow', cat:'深度学习'},
+];
+
+// ═══════════════ READING DATA ═══════════════
+const READING_SECTIONS = [
+  {id:'learn', name:'🧠 学会学习', desc:'先搞清楚怎么学，后面的书效率翻倍', books:[
+    {title:'费曼学习法', reason:'学会"用教别人的方式学"，编程学得快全靠它', done:false},
+    {title:'康奈尔学习法', reason:'搭配费曼，一个重理解一个重整理笔记', done:false},
+    {title:'输出力', reason:'学了要能讲出来，检验真懂的唯 一标准', done:false},
+  ]},
+  {id:'mindset', name:'💭 思维框架', desc:'建立自己的思考操作系统', books:[
+    {title:'批判性思维', reason:'不人云亦云，建立独立判断力', done:false},
+    {title:'原则', reason:'建立自己的决策系统，人生不再靠感觉', done:false},
+    {title:'进入心流', reason:'学会专注，这对编程太重要了', done:false},
+  ]},
+  {id:'human', name:'👥 人性与社交', desc:'读懂人比读懂代码更难', books:[
+    {title:'理解人性', reason:'阿德勒经典，看懂人为什么那样做', done:false},
+    {title:'影响力', reason:'沟通、说服、不被营销套路坑', done:false},
+  ]},
+  {id:'business', name:'💰 商业与经济', desc:'理解世界怎么运转', books:[
+    {title:'认识商业', reason:'商业入门全景图，搞清楚公司在干什么', done:false},
+    {title:'微观经济学', reason:'经济学思维基础，稀缺、选择、成本', done:false},
+    {title:'国富论', reason:'经典但厚，有基础后再看', done:false},
+    {title:'投资第一课', reason:'理财入门，越早越好', done:false},
+  ]},
+  {id:'science', name:'🔬 科学视野', desc:'拓宽看世界的角度', books:[
+    {title:'费曼讲物理', reason:'费曼能把物理讲得跟故事一样好懂', done:false},
+    {title:'我是怎样设计飞机的', reason:'最轻松的一本，当故事看，工程师思维', done:false},
+  ]},
+  {id:'extra', name:'⭐ 补充经典', desc:'这些是给你额外推荐的，按需选读', books:[
+    {title:'思考，快与慢', reason:'卡尼曼诺奖作品，理解大脑怎么偷懒和犯错', done:false},
+    {title:'人类简史', reason:'赫拉利，理解人类社会底层逻辑', done:false},
+    {title:'枪炮、病菌与钢铁', reason:'为什么有的国家富有的穷', done:false},
+    {title:'原子习惯', reason:'比《原则》更实操的习惯方法论', done:false},
+    {title:'黑客与画家', reason:'保罗·格雷厄姆，程序员必读', done:false},
+    {title:'算法图解', reason:'算法入门最友好，图多字少', done:false},
+    {title:'写给大家看的设计书', reason:'你学过PS，这本让你真正懂设计', done:false},
+  ]},
+];
+
+function getDefaultData(){
+  return {
+    antiStart:'',
+    engStart:'',
+    musicStart:'',
+    engMonth:1,
+    nceBook:1,
+    nceLesson:1,
+    antiDays:{},
+    engDays:{},
+    musicDays:{},
+    csDays:{},
+    csPhase:1,
+    readingDone:{},
+    entLog:[],
+  };
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return getDefaultData();
+}
+
+function saveData(d){ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+let DATA = loadData();
+if(!DATA.antiStart) DATA.antiStart = TODAY;
+if(!DATA.engStart) DATA.engStart = TODAY;
+if(!DATA.musicStart) DATA.musicStart = TODAY;
+if(!DATA.musicDays) DATA.musicDays = {};
+if(!DATA.csDays) DATA.csDays = {};
+if(!DATA.csPhase) DATA.csPhase = 1;
+if(!DATA.readingDone) DATA.readingDone = {};
+saveData(DATA);
+
+// ═══════════════ HELPERS ═══════════════
+function fmtDate(d){ return new Date(d).toLocaleDateString('zh-CN',{month:'short',day:'numeric',weekday:'short'}); }
+function daysBetween(a,b){ return Math.floor((new Date(b)-new Date(a))/(86400000)); }
+function dayOfWeek(d){ return new Date(d).getDay(); } // 0=Sun
+
+function getAntiDayNum(){
+  return Math.max(1, daysBetween(DATA.antiStart, TODAY) + 1);
+}
+
+function getEngDayNum(){
+  return Math.max(1, daysBetween(DATA.engStart, TODAY) + 1);
+}
+
+function getExerciseForDate(dateStr){
+  const idx = new Date(dateStr).getDay(); // 0=Sun ... 6=Sat
+  return {name:EXERCISE_CYCLE[idx], icon:EXERCISE_ICONS[idx]};
+}
+
+function isFriday(dateStr){
+  return new Date(dateStr).getDay() === 5;
+}
+
+function getAntiDayData(dateStr){
+  if(!DATA.antiDays[dateStr]) DATA.antiDays[dateStr] = {};
+  return DATA.antiDays[dateStr];
+}
+
+function getEngDayData(dateStr){
+  if(!DATA.engDays[dateStr]) DATA.engDays[dateStr] = {};
+  return DATA.engDays[dateStr];
+}
+
+function calcStreak(startDate, daysObj, checkFn){
+  let streak = 0;
+  let d = new Date(TODAY);
+  while(true){
+    const ds = d.toISOString().split('T')[0];
+    if(ds < startDate) break;
+    const dayData = daysObj[ds];
+    if(!dayData || !checkFn(dayData, ds)) break;
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+function antiDayComplete(dayData, dateStr){
+  const isFri = isFriday(dateStr);
+  let allDone = true;
+  for(const h of ANTI_HABITS){
+    if(h.onlyFriday && !isFri) continue;
+    if(!dayData[h.id]){ allDone = false; break; }
+  }
+  return allDone;
+}
+
+function engDayComplete(dayData){
+  const tasks = ENG_TASKS_BY_MONTH[DATA.engMonth] || ENG_TASKS_BY_MONTH[1];
+  return tasks.every(t => dayData[t.id]);
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 1500);
+}
+
+// ═══════════════ RENDER ═══════════════
+function renderAll(){
+  renderToday();
+  renderAnti();
+  renderEnglish();
+  renderMusic();
+  renderRecipe();
+  renderCS();
+  renderReading();
+  renderEntertainment();
+  renderStats();
+}
+
+// ── TODAY ──
+function renderToday(){
+  document.getElementById('headerDate').textContent = fmtDate(TODAY);
+  document.getElementById('statAntiDay').textContent = getAntiDayNum();
+  document.getElementById('statEngDay').textContent = getEngDayNum();
+  const aStreak = calcStreak(DATA.antiStart, DATA.antiDays, antiDayComplete);
+  const eStreak = calcStreak(DATA.engStart, DATA.engDays, engDayComplete);
+  document.getElementById('statStreak').textContent = Math.min(aStreak, eStreak);
+
+  const ex = getExerciseForDate(TODAY);
+  document.getElementById('todayExercise').innerHTML = ex.icon + ' ' + ex.name;
+
+  // Anti checklist
+  const ad = getAntiDayData(TODAY);
+  const isFri = isFriday(TODAY);
+  let antiHtml = '';
+  let antiDone = 0, antiTotal = 0;
+  for(const h of ANTI_HABITS){
+    if(h.onlyFriday && !isFri) continue;
+    antiTotal++;
+    const done = !!ad[h.id];
+    if(done) antiDone++;
+    antiHtml += `<li onclick="toggleAnti('${h.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${h.label}</div>
+      <span class="tag ${h.tag}">${h.tag.replace('tag-','')}</span>
+    </li>`;
+  }
+  document.getElementById('antiChecklist').innerHTML = antiHtml;
+  document.getElementById('antiTodayPct').textContent = `${antiDone}/${antiTotal} 完成`;
+
+  // Eng checklist
+  const ed = getEngDayData(TODAY);
+  const tasks = ENG_TASKS_BY_MONTH[DATA.engMonth] || ENG_TASKS_BY_MONTH[1];
+  let engHtml = '';
+  let engDone = 0;
+  for(const t of tasks){
+    const done = !!ed[t.id];
+    if(done) engDone++;
+    engHtml += `<li onclick="toggleEng('${t.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${t.label}</div>
+    </li>`;
+  }
+  document.getElementById('engChecklist').innerHTML = engHtml;
+  document.getElementById('engTodayPct').textContent = `${engDone}/${tasks.length} 完成`;
+  document.getElementById('engMonthLabel').textContent = `第${DATA.engMonth}月`;
+
+  // Entertainment recommendation
+  const entLevel = DATA.engMonth <= 2 ? 0 : DATA.engMonth <= 4 ? 1 : 2;
+  const recom = ENT_RECOM[entLevel];
+  document.getElementById('entLevelLabel').textContent = recom.label;
+  let recHtml = '';
+  for(const item of recom.items.slice(0,3)){
+    recHtml += `<div class="ent-card" style="border:none;box-shadow:none;padding:8px 0">
+      <div class="poster">${item.poster}</div>
+      <div class="info"><div class="title">${item.title}</div><div class="detail">${item.desc}</div></div>
+    </div>`;
+  }
+  document.getElementById('todayRec').innerHTML = recHtml;
+
+  // CS tasks summary
+  const cd2 = getCsDayData(TODAY);
+  document.getElementById('todayCsPhase').textContent = `第${DATA.csPhase}阶段`;
+  let csTodayHtml = '';
+  for(const t of CS_DAILY_TASKS){
+    const done = !!cd2[t.id];
+    csTodayHtml += `<li onclick="toggleCs('${t.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${t.label}</div>
+    </li>`;
+  }
+  document.getElementById('todayCsList').innerHTML = csTodayHtml;
+
+  // Music tasks summary
+  const md2 = getMusicDayData(TODAY);
+  const musicDayNum = getMusicDayNum();
+  const musicDayIdx = ((musicDayNum - 1) % 7 + 7) % 7;
+  const rot = MUSIC_ROTATION[musicDayIdx];
+  document.getElementById('todayMusicLabel').textContent = `Day ${musicDayNum}`;
+  const mTasks = [
+    {id:'daw', label:`DAW：${rot.daw}`},
+    {id:'instrument', label:`乐器：${rot.instrument}`},
+    {id:'other', label:`${rot.other}`},
+  ];
+  let mTodayHtml = '';
+  for(const mt of mTasks){
+    const done = !!md2[mt.id];
+    mTodayHtml += `<li onclick="toggleMusic('${mt.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${mt.label}</div>
+    </li>`;
+  }
+  document.getElementById('todayMusicList').innerHTML = mTodayHtml;
+}
+
+// ── ANTI ──
+function renderAnti(){
+  const antiDayNum = getAntiDayNum();
+  const currentWeek = Math.ceil(antiDayNum / 7);
+
+  // Week row
+  let weekHtml = '';
+  for(let w=1; w<=4; w++){
+    const cls = w === currentWeek ? 'today' : w < currentWeek ? 'done' : '';
+    weekHtml += `<div class="week-day ${cls}" onclick="switchAntiWeek(${w})">
+      <div class="d-num">W${w}</div>
+      <div>第${w}周</div>
+    </div>`;
+  }
+  document.getElementById('antiWeekRow').innerHTML = weekHtml;
+  document.getElementById('antiWeekLabel').textContent = `第${currentWeek}周 · 习惯`;
+
+  // Current week detail (show today's habits again for current week)
+  const ad = getAntiDayData(TODAY);
+  const isFri = isFriday(TODAY);
+  let detailHtml = '';
+  for(const h of ANTI_HABITS){
+    if(h.onlyFriday && !isFri) continue;
+    const done = !!ad[h.id];
+    detailHtml += `<li onclick="toggleAnti('${h.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${h.label}</div>
+      <span class="tag ${h.tag}">${h.tag.replace('tag-','')}</span>
+    </li>`;
+  }
+  document.getElementById('antiWeekDetail').innerHTML = detailHtml;
+
+  // 28 day overview
+  let overviewHtml = '<div style="display:flex;gap:4px;flex-wrap:wrap">';
+  for(let d=1; d<=28; d++){
+    const ds = new Date(DATA.antiStart);
+    ds.setDate(ds.getDate() + d - 1);
+    const dateStr = ds.toISOString().split('T')[0];
+    const dayData = DATA.antiDays[dateStr] || {};
+    const isComplete = antiDayComplete(dayData, dateStr);
+    const isToday = dateStr === TODAY;
+    const bg = isComplete ? 'var(--green)' : isToday ? 'var(--accent)' : 'var(--border)';
+    overviewHtml += `<div style="width:26px;height:26px;border-radius:6px;background:${bg};
+      display:flex;align-items:center;justify-content:center;font-size:.55em;color:#fff;font-weight:600;
+      cursor:pointer" title="Day ${d}: ${isComplete?'✓':'○'} ${fmtDate(dateStr)}">${d}</div>`;
+  }
+  overviewHtml += '</div>';
+  document.getElementById('antiMonthOverview').innerHTML = overviewHtml;
+
+  // Exercise cycle (by weekday)
+  let exHtml = '';
+  const todayIdx = new Date(TODAY).getDay(); // 0=Sun
+  const dayLabels = ['日','一','二','三','四','五','六'];
+  const typeLabels = ['有氧','力量','瑜伽','有氧','瑜伽','力量','有氧'];
+  for(let i=0; i<7; i++){
+    const isToday = i === todayIdx;
+    exHtml += `<div style="flex:1;min-width:50px;text-align:center;padding:8px 4px;
+      background:${isToday?'var(--accent2)':'var(--card)'};border-radius:10px;
+      border:${isToday?'2px solid var(--accent)':'1px solid var(--border)'};font-size:.7em">
+      <div style="font-size:1.6em">${EXERCISE_ICONS[i]}</div>
+      <div style="font-weight:${isToday?'700':'400'}">周${dayLabels[i]}</div>
+      <div style="color:var(--text2)">${typeLabels[i]}</div>
+      ${isToday?'<div style="color:var(--accent);font-weight:700;font-size:.7em">今天</div>':''}
+    </div>`;
+  }
+  document.getElementById('exerciseCycle').innerHTML = exHtml;
+
+  // Video shooting tasks for current week
+  const videoWeek = Math.ceil(antiDayNum / 7);
+  const weekTasks = [
+    {w:1, title:'第一周：建立秩序', tasks:[
+      '🌅 每天拍起床流程（闹钟+冥想+开窗）',
+      '🍳 拍第一顿抗炎早餐俯拍',
+      '🏋️ 拍力量训练2-3个镜头',
+      '👥 周五必须拍和朋友社交的画面',
+      '📝 每晚拍写日计划的手部特写',
+      '🌙 睡前拍放手机到客厅的动作',
+    ]},
+    {w:2, title:'第二周：身体开始回应', tasks:[
+      '😴 拍自然醒的瞬间（闹钟没响就醒了）',
+      '🏃 拍运动蒙太奇（三种运动交替）',
+      '🍳 拍厨房做饭+抗炎食材展示',
+      '🪞 拍皮肤对比照（同光线同角度）',
+      '💬 拍英语家长对话片段（环境音即可）',
+    ]},
+    {w:3, title:'第三周：最难的一周', tasks:[
+      '🏪 重点！拍便利店场景（站货架前+空手走出）',
+      '😔 拍疲惫/崩溃的真实表情',
+      '📝 拍日计划特写："今天很崩溃但我坚持了"',
+      '👥 拍周五朋友说"你变松弛了"的对话',
+      '🧘 拍情绪差时做瑜伽的片段',
+    ]},
+    {w:4, title:'第四周：这才是日常', tasks:[
+      '🌟 拍流畅的完美一天（一镜到底快剪素材）',
+      '🫐 拍抗炎食材红榜展示（八种摆盘俯拍）',
+      '📊 拍DAY1 vs DAY28对比镜头',
+      '🌅 拍结尾空镜（晨光/热水/运动鞋/日记本）',
+      '🎤 拍博主结尾出镜（窗户开着窗帘飘动）',
+    ]},
+  ];
+  const currentWeekTasks = weekTasks[Math.min(3, videoWeek-1)];
+  document.getElementById('videoTaskTitle').textContent = `🎥 ${currentWeekTasks.title} · 拍摄任务`;
+  let vtHtml = '';
+  for(const t of currentWeekTasks.tasks){
+    vtHtml += `<div style="padding:4px 0">${t}</div>`;
+  }
+  if(videoWeek > 4){
+    vtHtml = '<div style="color:var(--green);font-weight:700">✅ 28天拍摄完成！进入剪辑阶段 🎬</div>';
+  }
+  document.getElementById('videoTasks').innerHTML = vtHtml;
+}
+
+// ── ENGLISH ──
+function renderEnglish(){
+  // Month selector
+  let mHtml = '';
+  const monthNames = ['','第一月·打地基','第二月·掌握核心','第三月·开始读写','第四月·融入文化','第五月·扩展范围','第六月·吃透消化'];
+  for(let m=1; m<=6; m++){
+    mHtml += `<div class="month-btn ${m===DATA.engMonth?'active':''}" onclick="setEngMonth(${m})">M${m}<br>${monthNames[m].split('·')[0]}</div>`;
+  }
+  document.getElementById('monthSelector').innerHTML = mHtml;
+
+  // Month progress
+  const engDayNum = getEngDayNum();
+  const daysInMonth = Math.min(30, engDayNum);
+  let monthDoneCount = 0;
+  for(let i=0; i<daysInMonth; i++){
+    const ds = new Date(DATA.engStart);
+    ds.setDate(ds.getDate() + i);
+    const dateStr = ds.toISOString().split('T')[0];
+    const ed = DATA.engDays[dateStr];
+    if(ed && engDayComplete(ed)) monthDoneCount++;
+  }
+  const monthPct = daysInMonth > 0 ? Math.round(monthDoneCount/daysInMonth*100) : 0;
+  document.getElementById('engMonthProgress').style.width = monthPct + '%';
+  document.getElementById('engMonthProgressText').textContent = `${monthDoneCount}/${daysInMonth} 天完成 (${monthPct}%)`;
+
+  // NCE progress
+  const nceTotal = DATA.nceBook===1 ? 144 : DATA.nceBook===2 ? 96 : 60;
+  document.getElementById('nceBookLabel').textContent = `NCE ${DATA.nceBook}`;
+  document.getElementById('nceLessonLabel').textContent = `第 ${DATA.nceLesson} / ${nceTotal} 课`;
+  document.getElementById('nceProgress').style.width = (DATA.nceLesson/nceTotal*100) + '%';
+  document.getElementById('nceInput').value = DATA.nceLesson;
+  document.getElementById('nceInput').max = nceTotal;
+
+  // Detail checklist
+  const ed = getEngDayData(TODAY);
+  const tasks = ENG_TASKS_BY_MONTH[DATA.engMonth] || ENG_TASKS_BY_MONTH[1];
+  let detailHtml = '';
+  for(const t of tasks){
+    const done = !!ed[t.id];
+    detailHtml += `<li onclick="toggleEng('${t.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${t.label}</div>
+    </li>`;
+  }
+  document.getElementById('engDetailList').innerHTML = detailHtml;
+
+  // Month detail plan
+  document.getElementById('engMonthDetailLabel').textContent = `第${DATA.engMonth}月 · ${monthNames[DATA.engMonth]}`;
+  const monthDetails = {
+    1:`<b>NCE1 第1-72课</b>（36篇新课）<br>
+      🔹 泡脑子30-60分钟（儿童节目/慢速播客）<br>
+      🔹 不看书先听3-5遍 → 看图理解 → 跟读模仿<br>
+      🔹 练7个英语发音<br>
+      🔹 练熟开口工具箱短句<br>
+      🔹 自言自语用英语描述日常<br>
+      <b>里程碑：</b>英语不再"陌生"，能分辨语调节奏`,
+    2:`<b>NCE1 第73-144课</b>（36篇新课）<br>
+      🔹 胶水词训练（and/but/because/when/if等）<br>
+      🔹 关注词粒子（-ed,-ing,will,can,a/an,the）<br>
+      🔹 场景听力继续扩大<br>
+      🔹 找英语家长开始对话<br>
+      <b>里程碑：</b>NCE1全册听懂80%+，能用1000词日常沟通`,
+    3:`<b>NCE2 第1-48课</b><br>
+      🔹 每篇先听不看书2-3遍 → 理解故事 → 跟读模仿<br>
+      🔹 开始英语写作（改写课文故事3-5句）<br>
+      🔹 拼写规律训练（71个字母组合）<br>
+      🔹 跟英语家长讲今天读的故事<br>
+      <b>里程碑：</b>能听懂看懂NCE2前48课，每天能写几句英语`,
+    4:`<b>NCE2 第49-96课</b><br>
+      🔹 括号法拆长句（把长句分成小模块理解）<br>
+      🔹 主动找比喻和地道表达<br>
+      🔹 用学的比喻跟英语家长聊天<br>
+      <b>里程碑：</b>NCE2全册96课吃透，能拆解长句`,
+    5:`<b>NCE3 第1-30课</b><br>
+      🔹 深度讨论课文话题（不只是复述，是表达观点）<br>
+      🔹 写作升级 100-200词短文<br>
+      🔹 开始大量娱乐输入（电影/剧/播客）<br>
+      <b>里程碑：</b>能用英语表达观点，50%日常交流用英语`,
+    6:`<b>NCE3 第31-60课</b><br>
+      🔹 每天1-2小时跟英语家长对话<br>
+      🔹 每日英语日记或短文<br>
+      🔹 每天一部英语电影/剧<br>
+      🔹 彻底消化第一本英语著作<br>
+      <b>里程碑：</b>英语达到18岁母语者水平`,
+  };
+  document.getElementById('engMonthDetail').innerHTML = monthDetails[DATA.engMonth] || '';
+}
+
+// ── ENTERTAINMENT ──
+// ── CS LEARNING ──
+function getCsDayData(dateStr){
+  if(!DATA.csDays[dateStr]) DATA.csDays[dateStr] = {};
+  return DATA.csDays[dateStr];
+}
+
+function setCsPhase(p){
+  DATA.csPhase = p;
+  saveData(DATA);
+  renderAll();
+}
+
+function renderCS(){
+  document.getElementById('csPhaseLabel').textContent = `当前：第${DATA.csPhase}阶段`;
+  const phase = CS_PHASES[DATA.csPhase-1];
+
+  // Phase selector
+  let selHtml = '';
+  for(const ph of CS_PHASES){
+    selHtml += `<div class="month-btn ${ph.id===DATA.csPhase?'active':''}" onclick="setCsPhase(${ph.id})">${ph.icon} ${ph.name}<br><span style="font-size:.65em">${ph.time}</span></div>`;
+  }
+  document.getElementById('csPhaseSelector').innerHTML = selHtml;
+
+  // Phase detail
+  let detailHtml = `<div style="font-weight:700">${phase.desc}</div>`;
+  for(const t of phase.tasks){
+    detailHtml += `<div style="margin:6px 0">📌 <b>${t.name}</b>：${t.sub}</div>`;
+  }
+  document.getElementById('csPhaseDetail').innerHTML = detailHtml;
+
+  // Daily checklist
+  const cd = getCsDayData(TODAY);
+  let clHtml = '';
+  let doneCount = 0;
+  for(const t of CS_DAILY_TASKS){
+    const done = !!cd[t.id];
+    if(done) doneCount++;
+    clHtml += `<li onclick="toggleCs('${t.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${t.label}</div>
+    </li>`;
+  }
+  document.getElementById('csChecklist').innerHTML = clHtml;
+  document.getElementById('csTodayPct').textContent = `${doneCount}/${CS_DAILY_TASKS.length} 完成`;
+
+  // Projects
+  const projects = CS_PHASES[3].tasks;
+  let projHtml = '';
+  for(const p of projects){
+    const done = !!cd['proj_'+p.name];
+    projHtml += `<div class="mp-item" style="cursor:pointer" onclick="toggleCs('proj_${p.name}')">
+      <div class="cb ${done?'done':''}" style="width:20px;height:20px;font-size:.6em">${done?'✓':''}</div>
+      <span style="flex:1;font-size:.82em">${p.name}</span>
+    </div>
+    <div style="font-size:.7em;color:var(--text2);margin-left:28px;margin-bottom:6px">${p.sub}</div>`;
+  }
+  document.getElementById('csProjects').innerHTML = projHtml;
+
+  // Skills
+  let skillHtml = '';
+  for(const s of CS_SKILLS_LIST){
+    const done = !!cd['skill_'+s.name];
+    skillHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer" onclick="toggleCs('skill_${s.name}')">
+      <div class="cb ${done?'done':''}" style="width:20px;height:20px;font-size:.6em">${done?'✓':''}</div>
+      <span style="font-size:.8em;flex:1">${s.name}</span>
+      <span style="font-size:.65em;color:var(--text2);background:#f0ede5;padding:2px 8px;border-radius:8px">${s.cat}</span>
+    </div>`;
+  }
+  document.getElementById('csSkills').innerHTML = skillHtml;
+}
+
+function toggleCs(taskId){
+  const cd = getCsDayData(TODAY);
+  cd[taskId] = !cd[taskId];
+  saveData(DATA);
+  renderAll();
+  toast(cd[taskId] ? '✅ 已完成' : '↩️ 取消');
+}
+
+// ── READING ──
+function renderReading(){
+  let totalBooks = 0, doneBooks = 0;
+  for(const section of READING_SECTIONS){
+    for(const book of section.books){
+      totalBooks++;
+      if(DATA.readingDone[book.title]) doneBooks++;
+    }
+  }
+  document.getElementById('readingDoneCount').textContent = doneBooks;
+  document.getElementById('readingTotalCount').textContent = totalBooks;
+  document.getElementById('readingProgress').style.width = (doneBooks/Math.max(1,totalBooks)*100)+'%';
+
+  // Section selector
+  let selHtml = '';
+  for(const section of READING_SECTIONS){
+    let secDone = 0;
+    for(const b of section.books){ if(DATA.readingDone[b.title]) secDone++; }
+    selHtml += `<div class="month-btn" onclick="switchReadingSection('${section.id}')">
+      ${section.name}<br><span style="font-size:.65em">${secDone}/${section.books.length} 本</span>
+    </div>`;
+  }
+  document.getElementById('readingSectionSelector').innerHTML = selHtml;
+
+  // Default show first section, or the last clicked one
+  if(!window._readingSection) window._readingSection = READING_SECTIONS[0].id;
+  showReadingSection(window._readingSection);
+}
+
+function switchReadingSection(id){
+  window._readingSection = id;
+  showReadingSection(id);
+}
+
+function showReadingSection(id){
+  const section = READING_SECTIONS.find(s=>s.id===id);
+  if(!section) return;
+  let html = `<div class="card">
+    <h3><span class="ico">${section.name.slice(0,2)}</span>${section.name.slice(3)}</h3>
+    <div style="font-size:.78em;color:var(--text2);margin-bottom:8px">${section.desc}</div>`;
+  for(const book of section.books){
+    const done = !!DATA.readingDone[book.title];
+    html += `<div style="padding:10px;margin-bottom:6px;background:${done?'var(--green2)':'#fdf9f3'};border-radius:10px;
+      border-left:3px solid ${done?'var(--green)':'var(--border)'};cursor:pointer" onclick="toggleBook('${book.title}')">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="cb ${done?'done':''}" style="width:22px;height:22px;font-size:.65em">${done?'✓':''}</div>
+        <span style="font-weight:${done?'400':'700'};font-size:.85em;${done?'text-decoration:line-through;color:var(--text2)':''}">${book.title}</span>
+      </div>
+      <div style="font-size:.7em;color:var(--text2);margin-left:30px">${book.reason}</div>
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('readingSectionDetail').innerHTML = html;
+}
+
+function toggleBook(title){
+  DATA.readingDone[title] = !DATA.readingDone[title];
+  saveData(DATA);
+  renderAll();
+  toast(DATA.readingDone[title] ? `📚 读完：《${title}》` : `↩️ 取消：《${title}》`);
+}
+
+// ── RECIPE ──
+function renderRecipe(){
+  const dayIdx = (new Date(TODAY).getDay() + 6) % 7; // Mon=0, Sun=6
+  const recipe = WEEK_RECIPES[dayIdx];
+  document.getElementById('recipeDayLabel').textContent = recipe.day;
+
+  // Today's meals
+  let todayHtml = '';
+  const meals = [
+    {emoji:'🌅', label:'早餐', food:recipe.breakfast, how:recipe.breakfastHow},
+    {emoji:'☀️', label:'午餐', food:recipe.lunch, how:recipe.lunchHow},
+    {emoji:'🌙', label:'晚餐', food:recipe.dinner, how:recipe.dinnerHow},
+  ];
+  for(const m of meals){
+    todayHtml += `<div style="margin-bottom:10px;padding:10px;background:#fdf9f3;border-radius:10px">
+      <div style="font-weight:700;font-size:.85em">${m.emoji} ${m.label}</div>
+      <div style="font-size:.82em;font-weight:600">${m.food}</div>
+      <div style="font-size:.72em;color:var(--text2)">${m.how}</div>
+    </div>`;
+  }
+  document.getElementById('recipeToday').innerHTML = todayHtml;
+
+  // Week overview
+  let weekHtml = '';
+  for(const r of WEEK_RECIPES){
+    const isToday = r.day === recipe.day;
+    weekHtml += `<div style="margin-bottom:8px;cursor:pointer" onclick="this.querySelector('.rb').classList.toggle('open')">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${isToday?'var(--green2)':'#fdf9f3'};border-radius:10px;font-size:.8em;font-weight:${isToday?'700':'400'}">
+        <span>${r.day} ${isToday?'👈':''}</span>
+        <span style="color:var(--text2);font-size:.9em">${r.antifood}</span>
+        <span style="margin-left:auto;font-size:.7em;color:var(--text2)">▼</span>
+      </div>
+      <div class="rb" style="display:none;padding:8px 10px;font-size:.75em;line-height:1.6;background:#fefdfb;border-radius:0 0 10px 10px">
+        🌅 <b>早：</b>${r.breakfast}<br>
+        ☀️ <b>午：</b>${r.lunch}<br>
+        🌙 <b>晚：</b>${r.dinner}
+      </div>
+    </div>`;
+  }
+  document.getElementById('recipeWeek').innerHTML = weekHtml;
+
+  // Anti-inflammatory food rotation
+  let afHtml = '';
+  for(let i=0; i<7; i++){
+    const isToday = i === dayIdx;
+    const r = WEEK_RECIPES[i];
+    afHtml += `<div style="padding:6px 14px;border-radius:14px;font-size:.78em;font-weight:${isToday?'700':'400'};
+      background:${isToday?'var(--green2)':'var(--card)'};border:${isToday?'2px solid var(--green)':'1px solid var(--border)'}">
+      ${r.day.slice(0,2)} ${r.antifood}
+    </div>`;
+  }
+  document.getElementById('antiFoodRotation').innerHTML = afHtml;
+
+  // Shopping list
+  let shopHtml = '';
+  let totalPrice = 0;
+  for(const cat of SHOPPING_LIST){
+    shopHtml += `<div style="font-weight:700;color:var(--accent);font-size:.78em;margin:8px 0 4px">${cat.cat}</div>`;
+    for(const item of cat.items){
+      const priceNum = parseInt(item.price.replace(/[^0-9]/g,'')) || 0;
+      totalPrice += priceNum;
+      shopHtml += `<div style="display:flex;justify-content:space-between;font-size:.78em;padding:2px 0">
+        <span>${item.name}</span>
+        <span style="color:var(--text2)">${item.qty} · ${item.price}</span>
+      </div>`;
+    }
+  }
+  shopHtml += `<div style="display:flex;justify-content:space-between;font-weight:700;font-size:.85em;margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)">
+    <span>💰 总计</span><span style="color:var(--accent)">约 ${totalPrice} 元</span></div>`;
+  shopHtml += `<div style="font-size:.68em;color:var(--text2);margin-top:4px">调料是大头且长期用，去掉调料后每周食材约 170-190 元</div>`;
+  document.getElementById('shoppingList').innerHTML = shopHtml;
+}
+
+// ── MUSIC ──
+function getMusicDayData(dateStr){
+  if(!DATA.musicDays[dateStr]) DATA.musicDays[dateStr] = {};
+  return DATA.musicDays[dateStr];
+}
+
+function getMusicDayNum(){
+  return Math.max(1, daysBetween(DATA.musicStart, TODAY) + 1);
+}
+
+function renderMusic(){
+  const dayNum = getMusicDayNum();
+  const dayIdx = ((dayNum - 1) % 7 + 7) % 7;
+  const rot = MUSIC_ROTATION[dayIdx];
+
+  document.getElementById('musicDayLabel').textContent = `Day ${dayNum} · 第${Math.ceil(dayNum/7)}周`;
+
+  // Today's tasks
+  const md = getMusicDayData(TODAY);
+  let tasksHtml = '';
+  const taskDetails = [
+    {label:`DAW：${rot.daw}`, sub:'30分钟 · 打开软件跟着教程操作'},
+    {label:`乐器：${rot.instrument}`, sub:'30分钟 · 基本功+练习曲'},
+    {label:`${rot.other}`, sub:'15分钟 · 专注当下任务'},
+  ];
+  for(let i=0; i<3; i++){
+    const tid = ['daw','instrument','other'][i];
+    const done = !!md[tid];
+    tasksHtml += `<div class="mp-item" style="cursor:pointer" onclick="toggleMusic('${tid}')">
+      <div class="cb ${done?'done':''}" style="width:20px;height:20px;font-size:.6em">${done?'✓':''}</div>
+      <span style="flex:1">${taskDetails[i].label}</span>
+    </div>
+    <div style="font-size:.7em;color:var(--text2);margin-left:28px;margin-bottom:4px">${taskDetails[i].sub}</div>`;
+  }
+  document.getElementById('musicTodayTasks').innerHTML = tasksHtml;
+
+  // Skills progress
+  let skillsHtml = '';
+  for(const skill of MUSIC_SKILLS){
+    const practiceDays = Object.keys(DATA.musicDays).filter(ds=>{
+      const d = DATA.musicDays[ds];
+      // Check if this skill was practiced based on rotation
+      const dayNum2 = daysBetween(DATA.musicStart, ds) + 1;
+      const idx = ((dayNum2 - 1) % 7 + 7) % 7;
+      const rot2 = MUSIC_ROTATION[idx];
+      const isDaw = rot2.daw.includes(skill.name);
+      const isInst = rot2.instrument.includes(skill.name);
+      const isOther = rot2.other.includes(skill.name);
+      if(isDaw) return d.daw;
+      if(isInst) return d.instrument;
+      if(isOther) return d.other;
+      return false;
+    }).length;
+    const totalWeeks = Math.max(1, Math.ceil(getMusicDayNum() / 7));
+    const maxPossible = skill.cat==='DAW' ? totalWeeks*3 : skill.cat==='乐器' ? totalWeeks*2 : totalWeeks*2;
+    const pct = Math.min(100, Math.round(practiceDays/Math.max(1,maxPossible)*100));
+    skillsHtml += `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:.8em;margin-bottom:3px">
+        <span>${skill.icon} ${skill.name} <span style="font-size:.7em;color:var(--text2)">${skill.cat}</span></span>
+        <span style="color:var(--text2)">${practiceDays}次</span>
+      </div>
+      <div class="progress-bar"><div class="fill" style="width:${pct}%;background:var(--purple)"></div></div>
+      <div style="font-size:.65em;color:var(--text2)">${skill.desc}</div>
+    </div>`;
+  }
+  document.getElementById('musicSkills').innerHTML = skillsHtml;
+
+  // Roadmap (show current DAW being learned)
+  const dawRoadmap = MUSIC_ROADMAP.flstudio.concat(MUSIC_ROADMAP.cubase).concat(MUSIC_ROADMAP.piano.slice(0,3));
+  let roadmapHtml = '<div style="font-size:.78em;line-height:1.8">';
+  roadmapHtml += '<div style="font-weight:700;color:var(--purple);margin-bottom:4px">🎹 FL Studio 路线：</div>';
+  for(const step of MUSIC_ROADMAP.flstudio){
+    const done = step.startsWith('✅');
+    roadmapHtml += `<div style="color:${done?'var(--green)':'var(--text2)'}">${step}</div>`;
+  }
+  roadmapHtml += '<div style="font-weight:700;color:var(--purple);margin:8px 0 4px">🔧 Cubase 路线：</div>';
+  for(const step of MUSIC_ROADMAP.cubase){
+    const done = step.startsWith('✅');
+    roadmapHtml += `<div style="color:${done?'var(--green)':'var(--text2)'}">${step}</div>`;
+  }
+  roadmapHtml += '<div style="font-weight:700;color:var(--purple);margin:8px 0 4px">🎹 钢琴：</div>';
+  for(const step of MUSIC_ROADMAP.piano){
+    const done = step.startsWith('✅');
+    roadmapHtml += `<div style="color:${done?'var(--green)':'var(--text2)'}">${step}</div>`;
+  }
+  roadmapHtml += '</div>';
+  document.getElementById('musicRoadmap').innerHTML = roadmapHtml;
+
+  // Checklist
+  const md2 = getMusicDayData(TODAY);
+  let clHtml = '';
+  let doneCount = 0;
+  for(const t of MUSIC_TASKS){
+    const done = !!md2[t.id];
+    if(done) doneCount++;
+    clHtml += `<li onclick="toggleMusic('${t.id}')">
+      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
+      <div class="lbl">${t.label}</div>
+    </li>`;
+  }
+  document.getElementById('musicChecklist').innerHTML = clHtml;
+  document.getElementById('musicTodayPct').textContent = `${doneCount}/3 完成`;
+}
+
+function toggleMusic(taskId){
+  const md = getMusicDayData(TODAY);
+  md[taskId] = !md[taskId];
+  saveData(DATA);
+  renderAll();
+  toast(md[taskId] ? '✅ 已完成' : '↩️ 取消');
+}
+
+// ── ENTERTAINMENT ──
+function renderEntertainment(){
+  const entLevel = DATA.engMonth <= 2 ? 0 : DATA.engMonth <= 4 ? 1 : 2;
+
+  // Recommendations for current level
+  const recom = ENT_RECOM[entLevel];
+  let recomHtml = `<div style="font-size:.8em;color:var(--text2);margin-bottom:8px">当前：<b>${recom.label}</b> · ${recom.type}</div>`;
+  for(const item of recom.items){
+    recomHtml += `<div class="ent-card">
+      <div class="poster">${item.poster}</div>
+      <div class="info"><div class="title">${item.title}</div><div class="detail">${item.desc}</div></div>
+      <div class="lvl" style="background:var(--accent2);color:var(--accent)">推荐</div>
+    </div>`;
+  }
+  document.getElementById('entRecom').innerHTML = recomHtml;
+
+  // Level filter
+  let filterHtml = '';
+  for(const r of ENT_RECOM){
+    filterHtml += `<div class="month-btn ${r.level===entLevel+1?'active':''}" onclick="filterEntLevel(${r.level})">${r.label}</div>`;
+  }
+  document.getElementById('entLevelFilter').innerHTML = filterHtml;
+
+  // All list
+  renderEntList(entLevel + 1);
+
+  // Log
+  renderEntLog();
+}
+
+let currentEntFilter = null;
+function filterEntLevel(lvl){
+  currentEntFilter = currentEntFilter === lvl ? null : lvl;
+  renderEntList(currentEntFilter || (DATA.engMonth <= 2 ? 1 : DATA.engMonth <= 4 ? 2 : 3));
+}
+
+function renderEntList(level){
+  let html = '';
+  const items = level === 1 ? ENT_RECOM[0].items :
+                level === 2 ? ENT_RECOM[1].items : ENT_RECOM[2].items;
+  const label = level === 1 ? ENT_RECOM[0].label :
+                level === 2 ? ENT_RECOM[1].label : ENT_RECOM[2].label;
+  html += `<div style="font-size:.75em;color:var(--text2);margin-bottom:6px">${label}</div>`;
+  for(const item of items){
+    html += `<div class="ent-card">
+      <div class="poster">${item.poster}</div>
+      <div class="info"><div class="title">${item.title}</div><div class="detail">${item.desc}</div></div>
+    </div>`;
+  }
+  // Also show other levels
+  for(const r of ENT_RECOM){
+    if(r.level === level) continue;
+    html += `<div style="font-size:.75em;color:var(--text2);margin:12px 0 6px">${r.label} · ${r.type}</div>`;
+    for(const item of r.items.slice(0,2)){
+      html += `<div class="ent-card" style="opacity:.6">
+        <div class="poster">${item.poster}</div>
+        <div class="info"><div class="title">${item.title}</div><div class="detail">${item.desc}</div></div>
+      </div>`;
+    }
+  }
+  document.getElementById('entAllList').innerHTML = html;
+}
+
+function renderEntLog(){
+  const log = DATA.entLog || [];
+  if(!log.length){
+    document.getElementById('entLog').innerHTML = '<div style="color:var(--text2);font-size:.8em;text-align:center;padding:12px">还没有记录，点击下方按钮添加</div>';
+    return;
+  }
+  let html = '';
+  const recent = [...log].reverse().slice(0, 20);
+  for(const entry of recent){
+    const colors = {1:'#6b9b6f',2:'#6b8db5',3:'#c77d4b'};
+    html += `<div class="log-entry">
+      <div class="log-dot" style="background:${colors[entry.level]||'#ccc'}"></div>
+      <span style="font-weight:600">${entry.title}</span>
+      <span style="color:var(--text2);font-size:.75em">${entry.type||''}</span>
+      <span style="color:var(--text2);font-size:.7em;margin-left:auto">${entry.date||''} ${entry.step||''}</span>
+    </div>`;
+  }
+  document.getElementById('entLog').innerHTML = html;
+}
+
+function addEntLog(){
+  const title = prompt('📺 内容名称：');
+  if(!title) return;
+  const type = prompt('🎭 类型（电影/剧集/播客/动画/其他）：','播客');
+  const level = parseInt(prompt('📊 难度级别（1=简单 2=中等 3=难）：','1'));
+  const step = prompt('🔢 看第几遍了？（1/2/3）：','1');
+  if(!DATA.entLog) DATA.entLog = [];
+  DATA.entLog.push({date:TODAY, title, type:type||'其他', level:level||1, step:step||'1'});
+  saveData(DATA);
+  renderEntLog();
+  toast('✅ 已添加！');
+}
+
+// ── STATS ──
+function renderStats(){
+  const aStreak = calcStreak(DATA.antiStart, DATA.antiDays, antiDayComplete);
+  const eStreak = calcStreak(DATA.engStart, DATA.engDays, engDayComplete);
+  document.getElementById('statAntiStreak').textContent = aStreak;
+  document.getElementById('statEngStreak').textContent = eStreak;
+
+  // Completion rates
+  let aTotal=0, aDone=0, eTotal=0, eDone=0;
+  const aStart = new Date(DATA.antiStart);
+  const eStart = new Date(DATA.engStart);
+  const today = new Date(TODAY);
+  for(let d=new Date(aStart); d<=today; d.setDate(d.getDate()+1)){
+    const ds = d.toISOString().split('T')[0];
+    const dayData = DATA.antiDays[ds] || {};
+    const isFri = new Date(ds).getDay()===5;
+    let totalHabits = 0, doneHabits = 0;
+    for(const h of ANTI_HABITS){
+      if(h.onlyFriday && !isFri) continue;
+      totalHabits++;
+      if(dayData[h.id]) doneHabits++;
+    }
+    aTotal += totalHabits;
+    aDone += doneHabits;
+  }
+  for(let d=new Date(eStart); d<=today; d.setDate(d.getDate()+1)){
+    const ds = d.toISOString().split('T')[0];
+    const ed = DATA.engDays[ds] || {};
+    const tasks = ENG_TASKS_BY_MONTH[DATA.engMonth] || ENG_TASKS_BY_MONTH[1];
+    eTotal += tasks.length;
+    for(const t of tasks){ if(ed[t.id]) eDone++; }
+  }
+  document.getElementById('statAntiRate').textContent = aTotal>0 ? Math.round(aDone/aTotal*100) + '%' : '0%';
+  document.getElementById('statEngRate').textContent = eTotal>0 ? Math.round(eDone/eTotal*100) + '%' : '0%';
+
+  // Trends (last 14 days)
+  let aTrendHtml = '', eTrendHtml = '';
+  for(let i=13; i>=0; i--){
+    const d = new Date(TODAY);
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const ad = DATA.antiDays[ds] || {};
+    const ed = DATA.engDays[ds] || {};
+    const isFri = d.getDay()===5;
+
+    let totalHabits=0, doneHabits=0;
+    for(const h of ANTI_HABITS){
+      if(h.onlyFriday && !isFri) continue;
+      totalHabits++;
+      if(ad[h.id]) doneHabits++;
+    }
+    const aPct = totalHabits>0 ? Math.round(doneHabits/totalHabits*100) : 0;
+    const h = Math.max(4, aPct/100*60);
+    const barColor = aPct>=80 ? 'var(--green)' : aPct>=50 ? 'var(--accent)' : 'var(--red)';
+    aTrendHtml += `<div style="flex:1;text-align:center">
+      <div style="height:${h}px;background:${barColor};border-radius:3px 3px 0 0;margin-bottom:3px"></div>
+      <div style="font-size:.5em;color:var(--text2)">${ds.slice(5)}</div>
+    </div>`;
+
+    const tasks = ENG_TASKS_BY_MONTH[DATA.engMonth] || ENG_TASKS_BY_MONTH[1];
+    let eTotalHabits=0, eDoneHabits=0;
+    for(const t of tasks){
+      eTotalHabits++;
+      if(ed[t.id]) eDoneHabits++;
+    }
+    const ePct = eTotalHabits>0 ? Math.round(eDoneHabits/eTotalHabits*100) : 0;
+    const eh = Math.max(4, ePct/100*60);
+    const eColor = ePct>=80 ? 'var(--green)' : ePct>=50 ? 'var(--accent)' : 'var(--red)';
+    eTrendHtml += `<div style="flex:1;text-align:center">
+      <div style="height:${eh}px;background:${eColor};border-radius:3px 3px 0 0;margin-bottom:3px"></div>
+      <div style="font-size:.5em;color:var(--text2)">${ds.slice(5)}</div>
+    </div>`;
+  }
+  document.getElementById('antiTrend').innerHTML = aTrendHtml;
+  document.getElementById('engTrend').innerHTML = eTrendHtml;
+
+  // Entertainment stats
+  const log = DATA.entLog || [];
+  const byType = {};
+  for(const entry of log){
+    byType[entry.type] = (byType[entry.type]||0) + 1;
+  }
+  let entStatsHtml = `<div>📊 总计：<b>${log.length}</b> 条记录</div>`;
+  for(const [type, count] of Object.entries(byType)){
+    entStatsHtml += `<div>· ${type}：${count} 次</div>`;
+  }
+  document.getElementById('entStats').innerHTML = entStatsHtml;
+}
+
+// ═══════════════ ACTIONS ═══════════════
+function toggleAnti(habitId){
+  const ad = getAntiDayData(TODAY);
+  ad[habitId] = !ad[habitId];
+  saveData(DATA);
+  renderAll();
+  const h = ANTI_HABITS.find(x=>x.id===habitId);
+  toast(ad[habitId] ? `✅ ${h.label}` : `↩️ 取消：${h.label}`);
+}
+
+function toggleEng(taskId){
+  const ed = getEngDayData(TODAY);
+  ed[taskId] = !ed[taskId];
+  saveData(DATA);
+  renderAll();
+  toast(ed[taskId] ? `✅ 已完成` : `↩️ 取消`);
+}
+
+function setEngMonth(m){
+  DATA.engMonth = m;
+  // Adjust NCE book based on month
+  if(m <= 2) DATA.nceBook = 1;
+  else if(m <= 4) DATA.nceBook = 2;
+  else DATA.nceBook = 3;
+  const maxLesson = DATA.nceBook===1 ? 144 : DATA.nceBook===2 ? 96 : 60;
+  if(DATA.nceLesson > maxLesson) DATA.nceLesson = 1;
+  saveData(DATA);
+  renderAll();
+  toast(`切换到第${m}月`);
+}
+
+function updateNce(delta){
+  if(delta === 0){
+    const val = parseInt(document.getElementById('nceInput').value);
+    const maxLesson = DATA.nceBook===1 ? 144 : DATA.nceBook===2 ? 96 : 60;
+    if(val >= 1 && val <= maxLesson){
+      DATA.nceLesson = val;
+    }
+  } else {
+    DATA.nceLesson += delta;
+    const maxLesson = DATA.nceBook===1 ? 144 : DATA.nceBook===2 ? 96 : 60;
+    if(DATA.nceLesson < 1) DATA.nceLesson = 1;
+    if(DATA.nceLesson > maxLesson) DATA.nceLesson = maxLesson;
+  }
+  // Auto-advance book
+  if(DATA.nceBook===1 && DATA.nceLesson > 144){ DATA.nceBook=2; DATA.nceLesson=1; }
+  if(DATA.nceBook===2 && DATA.nceLesson > 96){ DATA.nceBook=3; DATA.nceLesson=1; }
+  saveData(DATA);
+  renderAll();
+  toast(`📚 NCE${DATA.nceBook} · 第${DATA.nceLesson}课`);
+}
+
+function switchAntiWeek(w){
+  // Jump to that week's start date
+  const targetDay = (w-1)*7 + 1;
+  toast(`第${w}周：第${targetDay}天开始`);
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  renderAll();
+}
+
+function resetAll(){
+  if(confirm('确定要重置所有数据吗？此操作不可恢复！')){
+    DATA = getDefaultData();
+    DATA.antiStart = TODAY;
+    DATA.engStart = TODAY;
+    DATA.musicStart = TODAY;
+    DATA.csDays = {};
+    DATA.readingDone = {};
+    saveData(DATA);
+    renderAll();
+    toast('🔄 已重置');
+  }
+}
+
+// ═══════════════ VIDEO SCRIPT ═══════════════
+function toggleChapter(header){
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.ch-arrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+// ═══════════════ INIT ═══════════════
+renderAll();
+
+// Register service worker for PWA
+if('serviceWorker' in navigator){
+  // Minimal SW registration - skip for simplicity since we're a single file
+}
+</script>
+</body>
+</html>

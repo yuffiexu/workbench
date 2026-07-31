@@ -1,0 +1,18 @@
+{
+  "name": "28天抗炎习惯 + 6个月英语学习 工作台",
+  "short_name": "我的工作台",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fdf8f2",
+  "theme_color": "#c77d4b",
+  "description": "个人成长工作台 - 抗炎习惯打卡 & 英语学习追踪",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "lang": "zh-CN",
+  "orientation": "portrait"
+}
