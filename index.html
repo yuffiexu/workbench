@@ -2290,12 +2290,6 @@ function getMusicDayNum(){
 }
 
 function renderMusic(){
-  const dayNum = getMusicDayNum();
-  const dayIdx = ((dayNum - 1) % 7 + 7) % 7;
-  const rot = MUSIC_ROTATION[dayIdx];
-
-  document.getElementById('musicDayLabel').textContent = sprintLabel;
-
   // Today's music sprint tasks (auto-detected from August plan)
   const musicStart2=new Date('2026-08-01');
   const musicDay2=Math.max(1,Math.floor((new Date(TODAY)-musicStart2)/86400000)+1);
@@ -2323,6 +2317,8 @@ function renderMusic(){
   // Add vocal
   if(musicDay2>=1&&musicDay2<=30){sprintTasks.push('🎤 声乐D'+musicDay2+' · '+(musicDay2<=15?'基础教材Ch'+musicDay2:'Workout跟练'));}
 
+  document.getElementById('musicDayLabel').textContent = sprintLabel;
+  const md = getMusicDayData(TODAY);
   let tasksHtml='';
   for(let i=0;i<sprintTasks.length;i++){
     const tid='sprint_'+i;
