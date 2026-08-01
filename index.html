@@ -329,6 +329,10 @@ body{
     </div>
   </div>
 
+  <!-- 奖励提示 -->
+  <div id="reward-msg" style="display:none;text-align:center;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,#fff9e6,#fff3cc);border-radius:14px;border:2px solid #ffd700;font-weight:800;font-size:.95em;animation:bounce .5s"></div>
+  <style>@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}</style>
+
   <!-- 今日抗炎清单 -->
   <div class="card">
     <h3><span class="ico">🛏️</span>今日抗炎习惯</h3>
@@ -1550,6 +1554,8 @@ function getDefaultData(){
     memos:[],
     principles:[],
     scheduleDays:{},
+    perfectDays:0,
+    _lastPerfect:'',
     entLog:[],
   };
 }
@@ -1729,6 +1735,18 @@ function renderToday(){
   }
   document.getElementById('scheduleList').innerHTML=sh;
   document.getElementById('schedulePct').textContent=`${sdDone}/${scheduleItems.length} 完成`;
+  // Reward system
+  const allDone=sdDone===scheduleItems.length;
+  const rewardEl=document.getElementById('reward-msg');
+  if(allDone){
+    const perfectDays=(DATA.perfectDays||0)+(DATA._lastPerfect!==TODAY?1:0);
+    if(DATA._lastPerfect!==TODAY){DATA.perfectDays=perfectDays;DATA._lastPerfect=TODAY;}
+    const msgs=['🎉 全部完成！你是今天的王者！','⭐ 又是完美的一天！','🏆 全部打卡！奖励自己一下','💎 完美！你已经坚持了 '+perfectDays+' 天','🔥 无敌！今天没白过'];
+    rewardEl.innerHTML=msgs[perfectDays%msgs.length];
+    rewardEl.style.display='block';
+  }else{
+    rewardEl.style.display='none';
+  }
   saveData(DATA);
 
   // Anti checklist
