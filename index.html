@@ -294,8 +294,9 @@ body{
 <div class="tab-page active" id="tab-today">
   <!-- 八月倒计时 -->
   <div class="card" style="text-align:center;background:linear-gradient(135deg,#f0e8f5,#fdf8f2)">
-    <div style="font-size:.7em;color:var(--text2)">📆 八月剩余</div>
-    <div style="font-size:2em;font-weight:900;color:var(--purple)" id="augDaysLeft">31天</div>
+    <div style="font-size:.7em;color:var(--text2)">📆 八月倒计时</div>
+    <div style="font-size:1.5em;font-weight:900;color:var(--purple);font-variant-numeric:tabular-nums" id="augClock">30天 23:59:59</div>
+    <div style="font-size:.85em;color:var(--accent);font-weight:700;margin-top:2px" id="augDaysTxt">剩余31天</div>
     <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:.65em;margin-top:4px" id="augBreakdown"></div>
   </div>
 
@@ -1692,7 +1693,8 @@ function renderToday(){
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
-    document.getElementById('augDaysLeft').innerHTML=`<span style="font-size:.7em">剩余</span> ${d}天 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    document.getElementById('augClock').textContent=`${d}天 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    document.getElementById('augDaysTxt').textContent=`剩余 ${d+1} 天`;
     const daysLeft=d+1;
     let breakdown='';
     for(const[k,v]of Object.entries(hPerDay)){
