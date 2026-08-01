@@ -292,14 +292,21 @@ body{
 
 <!-- ═══════════════ 今日 TAB ═══════════════ -->
 <div class="tab-page active" id="tab-today">
+  <!-- 八月倒计时 -->
+  <div class="card" style="text-align:center;background:linear-gradient(135deg,#f0e8f5,#fdf8f2)">
+    <div style="font-size:.7em;color:var(--text2)">📆 八月剩余</div>
+    <div style="font-size:2em;font-weight:900;color:var(--purple)" id="augDaysLeft">31天</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:.65em;margin-top:4px" id="augBreakdown"></div>
+  </div>
+
   <div class="stat-row">
     <div class="stat-card" onclick="switchTab('anti')">
       <div class="num" id="statAntiDay">1</div>
       <div class="lbl">抗炎 · 第N天</div>
     </div>
-    <div class="stat-card" onclick="switchTab('english')">
+    <div class="stat-card" onclick="switchTab('hub-learn')">
       <div class="num" id="statEngDay">1</div>
-      <div class="lbl">英语 · 第N天</div>
+      <div class="lbl">学习 · 第N天</div>
     </div>
     <div class="stat-card">
       <div class="num" id="statStreak">0</div>
@@ -1670,6 +1677,20 @@ function renderToday(){
   document.getElementById('headerDate').textContent = fmtDate(TODAY);
   document.getElementById('statAntiDay').textContent = getAntiDayNum();
   document.getElementById('statEngDay').textContent = getEngDayNum();
+
+  // August countdown
+  const augEnd=new Date('2026-08-31');
+  const todayDate=new Date(TODAY);
+  const daysLeft=Math.max(0,Math.ceil((augEnd-todayDate)/86400000)+1);
+  document.getElementById('augDaysLeft').textContent=daysLeft+'天';
+  const hPerDay={music:5,cs:2,english:2,homework:.5,exercise:1.5,reading:.5,free:2};
+  const icons={music:'🎵',cs:'💻',english:'📖',homework:'✏️',exercise:'🏃',reading:'📚',free:'🎮'};
+  const names={music:'音乐',cs:'计算机',english:'英语',homework:'作业',exercise:'运动',reading:'阅读',free:'娱乐'};
+  let breakdown='';
+  for(const[k,v]of Object.entries(hPerDay)){
+    breakdown+=`<span style="background:rgba(0,0,0,.04);padding:2px 6px;border-radius:6px">${icons[k]}${names[k]} ${Math.round(v*daysLeft)}h</span>`;
+  }
+  document.getElementById('augBreakdown').innerHTML=breakdown;
   const aStreak = calcStreak(DATA.antiStart, DATA.antiDays, antiDayComplete);
   const eStreak = calcStreak(DATA.engStart, DATA.engDays, engDayComplete);
   document.getElementById('statStreak').textContent = Math.min(aStreak, eStreak);
