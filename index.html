@@ -1668,25 +1668,38 @@ function renderToday(){
   // Daily schedule
   if(!DATA.scheduleDays[TODAY]) DATA.scheduleDays[TODAY] = {};
   const sd = DATA.scheduleDays[TODAY];
-  // Calculate music phase
+  // Calculate music phase (instrument sprint + daily vocal)
   const musicStart=new Date('2026-08-01');
   const musicDay=Math.max(1,Math.floor((new Date(TODAY)-musicStart)/86400000)+1);
-  let musicPhase='',musicDetail='';
-  if(musicDay>=1&&musicDay<=3){musicPhase='乐理冲刺';musicDetail=musicDay===1?'第1-7章(音高·记谱·音律·记号·表情术语·节拍节奏) 7h':musicDay===2?'第8-14章(音程3h+和弦4h) 7h':'第15-20章(调式3h+转调/装饰音2h+复习1h) 6h';}
-  else if(musicDay>=4&&musicDay<=10){const gd=musicDay-3;musicPhase='吉他速通';musicDetail=`D${gd} `+['持琴+拨弦+爬格子','C·Am·G和弦','Em·D·Dm+转换','6和弦循环+扫弦','F横按死磕日','弹唱同步','3首歌+结业'][gd-1]+' 5h';}
-  else if(musicDay>=11&&musicDay<=40){const vd=musicDay-10;musicPhase='声乐30天';musicDetail=`D${vd} `+(vd<=15?'基础教材':'Workout训练')+' 1.5-2h';}
-  else{musicPhase='自由练习';musicDetail='复习+巩固';}
+  let instPhase='',instDetail='';
+  if(musicDay>=1&&musicDay<=3){instPhase='乐理冲刺';instDetail=musicDay===1?'D1:第1-7章(音高·记谱·音律·记号·表情术语·节拍节奏)':musicDay===2?'D2:第8-14章(音程+和弦)':'D3:第15-20章(调式+转调+复习)';}
+  else if(musicDay>=4&&musicDay<=10){const gd=musicDay-3;instPhase='吉他速通';instDetail=`D${gd}:`+['持琴+拨弦+爬格子','C·Am·G和弦','Em·D·Dm+转换','6和弦循环+4扫弦','F横按死磕日','弹唱同步练歌','3首歌+结业录像'][gd-1];}
+  else if(musicDay>=11&&musicDay<=17){const pd=musicDay-10;instPhase='钢琴速通';instDetail=`D${pd}:`+['手型指法+哈农','低音谱号+双手合奏','三和弦原位+转位','七和弦+I-V-vi-IV','伴奏型4种','弹唱同步','3首曲+结业'][pd-1];}
+  else if(musicDay>=18&&musicDay<=24){const vd=musicDay-17;instPhase='小提琴速通';instDetail=`D${vd}:`+['基本功修复(空弦+手型)','一把位音阶','换把练习','揉弦练习','弓法5种','摇篮曲+揉弦+卡农','新曲+结业'][vd-1];}
+  else{instPhase='自由练习';instDetail='复习+巩固+创作';}
+
+  // Vocal runs daily Aug 1-30
+  let vocalDetail='';
+  const vocalDay=musicDay;
+  if(vocalDay>=1&&vocalDay<=30){
+    if(vocalDay===1)vocalDetail='+声乐基础D1:Ch1声音学习';
+    else if(vocalDay===2)vocalDetail='+声乐基础D2:Ch2呼吸管理';
+    else if(vocalDay<=7)vocalDetail=`+声乐基础D${vocalDay}:教材跟进`;
+    else if(vocalDay<=15)vocalDetail=`+声乐基础D${vocalDay}:教材跟进`;
+    else if(vocalDay<=28)vocalDetail=`+声乐训练D${vocalDay}:Workout跟练`;
+    else vocalDetail='+声乐结业:录音对比';
+  }
 
   const scheduleItems = [
     {id:'wake', label:'🌅 6:00 起床喝水+冥想5分钟+开窗通风'},
     {id:'breakfast', label:'🍳 6:30 早餐（抗炎食材+杂粮≥50%）'},
-    {id:'musicBlock', label:`🎵 8:00-13:00 ${musicPhase} — ${musicDetail}`},
+    {id:'musicBlock', label:`🎵 8:00-13:00 ${instPhase} ${instDetail} ${vocalDetail}`},
     {id:'lunch', label:'🍽️ 13:00-14:00 午餐+休息'},
     {id:'csBlock', label:'💻 14:00-16:00 计算机学习（Python/Linux/SQL）'},
     {id:'englishBlock', label:'📖 16:00-18:00 英语学习（2小时）'},
     {id:'homework', label:'✏️ 18:00-18:30 写作业（30分钟）'},
-    {id:'exercise2', label:'🏃 18:30-19:30 运动1小时（'+ex.name+'）'},
-    {id:'dinner', label:'🌙 19:30-20:30 晚餐+休息'+ (isFriday(TODAY)?' · 🧑‍🤝‍🧑周五社交日！':'')},
+    {id:'exercise2', label:'🏃 18:30-20:00 运动1.5h（'+ex.name+'·含往返骑行40min）'},
+    {id:'dinner', label:'🌙 20:00-20:30 晚餐+休息'+ (isFriday(TODAY)?' · 🧑‍🤝‍🧑周五社交日！':'')},
     {id:'reading', label:'📚 20:30-21:00 阅读'},
     {id:'journal', label:'📝 21:00-21:30 情绪记录+日计划回顾'},
     {id:'sleep', label:'😴 21:30 远离手机·准备入睡'},
