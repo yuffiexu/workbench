@@ -2683,11 +2683,17 @@ function renderLearnHub(){
 }
 function showLearnContent(){
   const content=document.getElementById('learn-content');
-  // Clone the relevant tab page content into the hub
-  if(learnSub==='english'){renderEnglish();content.innerHTML=document.getElementById('tab-english').innerHTML;}
-  else if(learnSub==='cs'){renderCS();content.innerHTML=document.getElementById('tab-cs').innerHTML;}
-  else if(learnSub==='music'){renderMusic();content.innerHTML=document.getElementById('tab-music').innerHTML;}
-  else if(learnSub==='reading'){renderReading();content.innerHTML=document.getElementById('tab-reading').innerHTML;}
+  // Hide all original tabs, show only the selected one inside hub
+  ['tab-english','tab-cs','tab-music','tab-reading'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  const targetId='tab-'+learnSub;
+  const target=document.getElementById(targetId);
+  if(target){target.style.display='block';if(content.children.length===0||content.children[0]!==target){content.innerHTML='';content.appendChild(target);}}
+  if(learnSub==='english')renderEnglish();
+  else if(learnSub==='cs')renderCS();
+  else if(learnSub==='music')renderMusic();
+  else if(learnSub==='reading')renderReading();
 }
 function setLearnSub(id){learnSub=id;renderLearnHub();}
 function renderLifeHub(){
@@ -2699,11 +2705,17 @@ function renderLifeHub(){
 }
 function showLifeContent(){
   const content=document.getElementById('life-content');
-  if(lifeSub==='recipe'){renderRecipe();content.innerHTML=document.getElementById('tab-recipe').innerHTML;}
-  else if(lifeSub==='entertainment'){renderEntertainment();content.innerHTML=document.getElementById('tab-entertainment').innerHTML;}
-  else if(lifeSub==='memo'){renderMemos();content.innerHTML=document.getElementById('tab-memo').innerHTML;}
-  else if(lifeSub==='video'){renderCopyLines();content.innerHTML=document.getElementById('tab-video').innerHTML;}
-  else if(lifeSub==='principles'){renderPrinciples();content.innerHTML=document.getElementById('tab-principles').innerHTML;}
+  ['tab-recipe','tab-entertainment','tab-memo','tab-video','tab-principles'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  const targetId='tab-'+lifeSub;
+  const target=document.getElementById(targetId);
+  if(target){target.style.display='block';if(content.children.length===0||content.children[0]!==target){content.innerHTML='';content.appendChild(target);}}
+  if(lifeSub==='recipe')renderRecipe();
+  else if(lifeSub==='entertainment')renderEntertainment();
+  else if(lifeSub==='memo')renderMemos();
+  else if(lifeSub==='video')renderCopyLines();
+  else if(lifeSub==='principles')renderPrinciples();
 }
 function setLifeSub(id){lifeSub=id;renderLifeHub();}
 
