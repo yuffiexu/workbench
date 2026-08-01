@@ -314,6 +314,15 @@ body{
     <div style="font-size:.75em;color:var(--text2)">周一力量 · 周二瑜伽 · 周三有氧 · 周四瑜伽 · 周五力量 · 周六有氧 · 周日有氧</div>
   </div>
 
+  <!-- 今日时间表 -->
+  <div class="card">
+    <h3><span class="ico">📅</span>今日时间表</h3>
+    <ul class="checklist" id="scheduleList"></ul>
+    <div style="text-align:center;margin-top:6px">
+      <span style="font-size:.75em;color:var(--text2)" id="schedulePct">0/10 完成</span>
+    </div>
+  </div>
+
   <!-- 今日抗炎清单 -->
   <div class="card">
     <h3><span class="ico">🛏️</span>今日抗炎习惯</h3>
@@ -1534,6 +1543,7 @@ function getDefaultData(){
     readingDone:{},
     memos:[],
     principles:[],
+    scheduleDays:{},
     entLog:[],
   };
 }
@@ -1556,6 +1566,7 @@ if(!DATA.musicDays) DATA.musicDays = {};
 if(!DATA.csDays) DATA.csDays = {};
 if(!DATA.csPhase) DATA.csPhase = 1;
 if(!DATA.readingDone) DATA.readingDone = {};
+if(!DATA.scheduleDays) DATA.scheduleDays = {};
 saveData(DATA);
 
 // ═══════════════ HELPERS ═══════════════
@@ -1653,6 +1664,30 @@ function renderToday(){
 
   const ex = getExerciseForDate(TODAY);
   document.getElementById('todayExercise').innerHTML = ex.icon + ' ' + ex.name;
+
+  // Daily schedule
+  if(!DATA.scheduleDays[TODAY]) DATA.scheduleDays[TODAY] = {};
+  const sd = DATA.scheduleDays[TODAY];
+  const scheduleItems = [
+    {id:'wake', label:'🌅 6:00 起床喝水+冥想5分钟+开窗通风'},
+    {id:'breakfast', label:'🍳 早餐（抗炎食材+杂粮≥50%）'},
+    {id:'musicBlock', label:'🎵 8:00-13:00 音乐学习（乐理/吉他/声乐/钢琴/小提琴）'},
+    {id:'lunch', label:'🍽️ 午餐+休息'},
+    {id:'csBlock', label:'💻 14:00-17:00 计算机学习（Python/Linux/SQL）'},
+    {id:'reading', label:'📚 17:00-18:00 阅读'},
+    {id:'exercise2', label:'🏃 运动（'+ex.name+'）'},
+    {id:'dinner', label:'🌙 晚餐+自由/娱乐' + (isFriday(TODAY)?' 🧑‍🤝‍🧑周五社交日！':'')},
+    {id:'journal', label:'📝 21:00 情绪记录+日计划回顾'},
+    {id:'sleep', label:'😴 21:00-22:00 远离手机·看书·入睡'},
+  ];
+  let sh='',sdDone=0;
+  for(const item of scheduleItems){
+    const done=!!sd[item.id];if(done)sdDone++;
+    sh+=`<li onclick="toggleSchedule('${item.id}')"><div class="cb ${done?'done':''}">${done?'✓':''}</div><div class="lbl">${item.label}</div></li>`;
+  }
+  document.getElementById('scheduleList').innerHTML=sh;
+  document.getElementById('schedulePct').textContent=`${sdDone}/${scheduleItems.length} 完成`;
+  saveData(DATA);
 
   // Anti checklist
   const ad = getAntiDayData(TODAY);
@@ -2501,6 +2536,12 @@ function renderStats(){
 }
 
 // ═══════════════ ACTIONS ═══════════════
+function toggleSchedule(id){
+  if(!DATA.scheduleDays[TODAY]) DATA.scheduleDays[TODAY]={};
+  DATA.scheduleDays[TODAY][id]=!DATA.scheduleDays[TODAY][id];
+  saveData(DATA);renderAll();
+  toast(DATA.scheduleDays[TODAY][id]?'✅ 完成':'↩️ 取消');
+}
 function toggleAnti(habitId){
   const ad = getAntiDayData(TODAY);
   ad[habitId] = !ad[habitId];
@@ -2616,6 +2657,7 @@ function resetAll(){
     DATA.readingDone = {};
     DATA.memos = [];
     DATA.principles = [];
+    DATA.scheduleDays = {};
     saveData(DATA);
     renderAll();
     toast('🔄 已重置');
