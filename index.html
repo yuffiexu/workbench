@@ -359,6 +359,16 @@ body{
     </div>
   </div>
 
+  <!-- 今日戒社交 -->
+  <div class="card">
+    <h3><span class="ico">📵</span>戒社交媒体打卡 · 第<span id="detoxDay">1</span>天</h3>
+    <ul class="checklist" id="detoxList"></ul>
+    <div style="text-align:center;margin-top:6px">
+      <span style="font-size:.75em;color:var(--text2)" id="detoxPct">0/6 完成</span>
+      <span style="font-size:.7em;color:var(--green);margin-left:8px" id="detoxSaved"></span>
+    </div>
+  </div>
+
   <!-- 今日娱乐推荐 -->
   <div class="card">
     <h3><span class="ico">🎬</span>今日娱乐推荐 <span style="font-size:.65em;color:var(--text2);font-weight:400" id="entLevelLabel"></span></h3>
@@ -1564,6 +1574,8 @@ function getDefaultData(){
     scheduleDays:{},
     perfectDays:0,
     _lastPerfect:'',
+    detoxStart:'',
+    detoxDays:{},
     entLog:[],
   };
 }
@@ -1587,6 +1599,8 @@ if(!DATA.csDays) DATA.csDays = {};
 if(!DATA.csPhase) DATA.csPhase = 1;
 if(!DATA.readingDone) DATA.readingDone = {};
 if(!DATA.scheduleDays) DATA.scheduleDays = {};
+if(!DATA.detoxStart) DATA.detoxStart = TODAY;
+if(!DATA.detoxDays) DATA.detoxDays = {};
 saveData(DATA);
 
 // ═══════════════ HELPERS ═══════════════
@@ -1879,6 +1893,29 @@ function renderToday(){
     mTodayHtml+=`<li onclick="toggleMusic('${tid}')"><div class="cb ${done?'done':''}">${done?'✓':''}</div><div class="lbl">${mList[i]}</div></li>`;
   }
   document.getElementById('todayMusicList').innerHTML=mTodayHtml;
+
+  // Detox checklist
+  if(!DATA.detoxDays[TODAY]) DATA.detoxDays[TODAY]={};
+  const dx=DATA.detoxDays[TODAY];
+  const detoxItems=[
+    {id:'douyin',name:'📵 不刷抖音',time:'省~1.5h'},
+    {id:'bilibili',name:'📵 不刷B站',time:'省~1h'},
+    {id:'xiaohongshu',name:'📵 不刷小红书',time:'省~1h'},
+    {id:'weibo',name:'📵 不刷微博',time:'省~30min'},
+    {id:'wechat',name:'📵 微信只聊天不刷视频号/朋友圈',time:'省~1h'},
+    {id:'taobao',name:'📵 淘宝不逛只买必需品',time:'省~1h'},
+  ];
+  const detoxDayN=Math.max(1,Math.floor((new Date(TODAY)-new Date(DATA.detoxStart))/86400000)+1);
+  document.getElementById('detoxDay').textContent=detoxDayN;
+  let dxH='',dxDone=0,dxSaved=0;
+  for(const item of detoxItems){
+    const done=!!dx[item.id];if(done){dxDone++;dxSaved+=parseInt(item.time.match(/[\d.]+/)?.[0]||0);}
+    dxH+=`<li onclick="toggleDetox('${item.id}')"><div class="cb ${done?'done':''}">${done?'✓':''}</div><div class="lbl">${item.name}<span class="sub">${item.time}</span></div></li>`;
+  }
+  document.getElementById('detoxList').innerHTML=dxH;
+  document.getElementById('detoxPct').textContent=`${dxDone}/${detoxItems.length} 遵守`;
+  document.getElementById('detoxSaved').textContent=dxDone===detoxItems.length?'🎉 今天省了'+dxSaved+'小时！':dxSaved>0?'已省'+dxSaved+'h':'';
+  saveData(DATA);
 }
 
 // ── ANTI ──
@@ -2659,6 +2696,12 @@ function renderStats(){
 }
 
 // ═══════════════ ACTIONS ═══════════════
+function toggleDetox(id){
+  if(!DATA.detoxDays[TODAY]) DATA.detoxDays[TODAY]={};
+  DATA.detoxDays[TODAY][id]=!DATA.detoxDays[TODAY][id];
+  saveData(DATA);renderAll();
+  toast(DATA.detoxDays[TODAY][id]?'✅ 今天没刷！':'↩️ 取消');
+}
 function toggleSchedule(id){
   if(!DATA.scheduleDays[TODAY]) DATA.scheduleDays[TODAY]={};
   DATA.scheduleDays[TODAY][id]=!DATA.scheduleDays[TODAY][id];
@@ -2793,6 +2836,7 @@ function resetAll(){
     DATA.memos = [];
     DATA.principles = [];
     DATA.scheduleDays = {};
+    DATA.detoxDays = {};
     saveData(DATA);
     renderAll();
     toast('🔄 已重置');
