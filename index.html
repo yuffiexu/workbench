@@ -1682,10 +1682,11 @@ function renderToday(){
   const augEnd=new Date('2026-08-31');
   const todayDate=new Date(TODAY);
   const daysLeft=Math.max(0,Math.ceil((augEnd-todayDate)/86400000)+1);
-  document.getElementById('augDaysLeft').textContent=daysLeft+'天';
-  const hPerDay={music:5,cs:2,english:2,homework:.5,exercise:1.5,reading:.5,free:2};
-  const icons={music:'🎵',cs:'💻',english:'📖',homework:'✏️',exercise:'🏃',reading:'📚',free:'🎮'};
-  const names={music:'音乐',cs:'计算机',english:'英语',homework:'作业',exercise:'运动',reading:'阅读',free:'娱乐'};
+  const hPerDay={music:5,cs:2,english:2,homework:.5,exercise:1.5,reading:1,free:1.5,idle:1};
+  const icons={music:'🎵',cs:'💻',english:'📖',homework:'✏️',exercise:'🏃',reading:'📚',free:'🎮',idle:'☕'};
+  const names={music:'音乐',cs:'计算机',english:'英语',homework:'作业',exercise:'运动',reading:'阅读',free:'娱乐',idle:'空闲'};
+  const totalH=Math.round(Object.values(hPerDay).reduce((a,b)=>a+b,0)*daysLeft);
+  document.getElementById('augDaysLeft').textContent=totalH+'h';
   let breakdown='';
   for(const[k,v]of Object.entries(hPerDay)){
     breakdown+=`<span style="background:rgba(0,0,0,.04);padding:2px 6px;border-radius:6px">${icons[k]}${names[k]} ${Math.round(v*daysLeft)}h</span>`;
@@ -1744,8 +1745,9 @@ function renderToday(){
     {id:'englishBlock', label:'📖 16:00-18:00 英语学习（2小时）'},
     {id:'homework', label:'✏️ 18:00-18:30 写作业（30分钟）'},
     {id:'exercise2', label:'🏃 18:30-20:00 运动1.5h（'+ex.name+'·含往返骑行40min）'},
-    {id:'dinner', label:'🌙 20:00-20:30 晚餐+休息'+ (isFriday(TODAY)?' · 🧑‍🤝‍🧑周五社交日！':'')},
-    {id:'reading', label:'📚 20:30-21:00 阅读'},
+    {id:'dinner', label:'🌙 20:00-20:30 晚餐'+ (isFriday(TODAY)?' · 🧑‍🤝‍🧑周五社交日！':'')},
+    {id:'reading', label:'📚 20:30-21:00 阅读（30分钟）'},
+    {id:'idle', label:'☕ 21:00-21:30 空闲时间'},
     {id:'journal', label:'📝 21:00-21:30 情绪记录+日计划回顾'},
     {id:'sleep', label:'😴 21:30 远离手机·准备入睡'},
   ];
