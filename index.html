@@ -1793,26 +1793,25 @@ function renderToday(){
   }
   document.getElementById('todayCsList').innerHTML = csTodayHtml;
 
-  // Music tasks summary
-  const md2 = getMusicDayData(TODAY);
-  const musicDayNum = getMusicDayNum();
-  const musicDayIdx = ((musicDayNum - 1) % 7 + 7) % 7;
-  const rot = MUSIC_ROTATION[musicDayIdx];
-  document.getElementById('todayMusicLabel').textContent = `Day ${musicDayNum}`;
-  const mTasks = [
-    {id:'daw', label:`DAW：${rot.daw}`},
-    {id:'instrument', label:`乐器：${rot.instrument}`},
-    {id:'other', label:`${rot.other}`},
-  ];
-  let mTodayHtml = '';
-  for(const mt of mTasks){
-    const done = !!md2[mt.id];
-    mTodayHtml += `<li onclick="toggleMusic('${mt.id}')">
-      <div class="cb ${done?'done':''}">${done?'✓':''}</div>
-      <div class="lbl">${mt.label}</div>
-    </li>`;
+  // Music tasks summary (same sprint logic as music tab)
+  const mStart=new Date('2026-08-01');
+  const mDay=Math.max(1,Math.floor((new Date(TODAY)-mStart)/86400000)+1);
+  let mLabel='',mList=[];
+  if(mDay>=1&&mDay<=3){mLabel='📐 乐理冲刺';mList=mDay===1?['第1-4章(音高·记谱·音律·记号)','第5章(速度·力度·表情术语)','第6-7章(节拍与节奏)','每章练习题检验']:mDay===2?['第8-10章(音程)⚠️重点','第11-12章(三和弦+转位)','第13-14章(七和弦+标记)']:['第15-17章(调式+调号+五度圈)','第18-20章(转调+装饰音)','错题重做+思维导图'];}
+  else if(mDay>=4&&mDay<=10){mLabel='🎸 吉他速通';const gd=mDay-3;mList=['爬格子热身15min',''+['持琴拨弦+爬格子','C·Am·G和弦','Em·D·Dm+转换','6和弦转换+扫弦','F横按死磕','弹唱同步练歌','3首歌结业'][gd-1],'录音听自己'];if(gd>=5)mList.push('练F横按30min额外加练');}
+  else if(mDay>=11&&mDay<=17){mLabel='🎹 钢琴速通';const pd=mDay-10;mList=['哈农热身15min',''+['手型+五指练习','低音谱号+双手合奏','三和弦原位+转位','七和弦+I-V-vi-IV','柱式/分解/琶音','弹唱同步','3曲+致爱丽丝'][pd-1],'节拍器跟练'];if(['三和弦','七和弦'].some(x=>mList[1].includes(x)))mList.push('在FL Studio里每个和弦按一遍听效果');}
+  else if(mDay>=18&&mDay<=24){mLabel='🎻 小提琴速通';const vd=mDay-17;mList=['空弦热身(4弦全弓)',''+['持琴持弓纠正','一把位音阶(G/D/A)','换把(一把→三把)','揉弦(手臂/手腕/手指)','弓法5种练习','摇篮曲+流行曲复习','卡农+一步之遥'][vd-1],'录音听音准'];if(vd>=4)mList.push('长音加揉弦10min');}
+  else{mLabel='🌟 自由复习';mList=['复习薄弱环节','自由创作/录音','准备开学'];}
+  if(mDay>=1&&mDay<=30)mList.push('🎤 声乐D'+mDay);
+  document.getElementById('todayMusicLabel').textContent = mLabel;
+  const md2=getMusicDayData(TODAY);
+  let mTodayHtml='';
+  for(let i=0;i<mList.length;i++){
+    const tid='sprint_'+i;
+    const done=!!md2[tid];
+    mTodayHtml+=`<li onclick="toggleMusic('${tid}')"><div class="cb ${done?'done':''}">${done?'✓':''}</div><div class="lbl">${mList[i]}</div></li>`;
   }
-  document.getElementById('todayMusicList').innerHTML = mTodayHtml;
+  document.getElementById('todayMusicList').innerHTML=mTodayHtml;
 }
 
 // ── ANTI ──
@@ -2295,26 +2294,45 @@ function renderMusic(){
   const dayIdx = ((dayNum - 1) % 7 + 7) % 7;
   const rot = MUSIC_ROTATION[dayIdx];
 
-  document.getElementById('musicDayLabel').textContent = `Day ${dayNum} · 第${Math.ceil(dayNum/7)}周`;
+  document.getElementById('musicDayLabel').textContent = sprintLabel;
 
-  // Today's tasks
-  const md = getMusicDayData(TODAY);
-  let tasksHtml = '';
-  const taskDetails = [
-    {label:`DAW：${rot.daw}`, sub:'30分钟 · 打开软件跟着教程操作'},
-    {label:`乐器：${rot.instrument}`, sub:'30分钟 · 基本功+练习曲'},
-    {label:`${rot.other}`, sub:'15分钟 · 专注当下任务'},
-  ];
-  for(let i=0; i<3; i++){
-    const tid = ['daw','instrument','other'][i];
-    const done = !!md[tid];
-    tasksHtml += `<div class="mp-item" style="cursor:pointer" onclick="toggleMusic('${tid}')">
-      <div class="cb ${done?'done':''}" style="width:20px;height:20px;font-size:.6em">${done?'✓':''}</div>
-      <span style="flex:1">${taskDetails[i].label}</span>
-    </div>
-    <div style="font-size:.7em;color:var(--text2);margin-left:28px;margin-bottom:4px">${taskDetails[i].sub}</div>`;
+  // Today's music sprint tasks (auto-detected from August plan)
+  const musicStart2=new Date('2026-08-01');
+  const musicDay2=Math.max(1,Math.floor((new Date(TODAY)-musicStart2)/86400000)+1);
+  let sprintLabel='',sprintTasks=[];
+  if(musicDay2>=1&&musicDay2<=3){
+    sprintLabel='📐 乐理冲刺';
+    const tt=musicDay2===1?['第1-4章(音高·记谱·音律·记号) 2h','第5章(速度·力度·表情术语) 1h','第6-7章(节拍与节奏) 2h','练习题检验每章']:musicDay2===2?['第8-10章(音程) 3h ⚠️重点','第11-12章(三和弦+转位) 2h','第13-14章(七和弦+标记) 2h','每个练习题都做完']:['第15-17章(调式+调号+五度圈) 3h','第18-20章(转调+装饰音+移调) 2h','全书错题重做+思维导图 1h','A4纸画一张总图'];
+    sprintTasks=tt;
+  }else if(musicDay2>=4&&musicDay2<=10){
+    sprintLabel='🎸 吉他速通';
+    const gd=musicDay2-3;
+    sprintTasks=['持琴姿势+右手拨弦+左手按弦','爬格子1234(节拍器60→80)',''+['C·Am·G','Em·D·Dm','和弦转换','扫弦4种','F横按死磕','弹唱同步','3首歌+录像'][gd-1]+' 5h'];
+  }else if(musicDay2>=11&&musicDay2<=17){
+    sprintLabel='🎹 钢琴速通';
+    const pd=musicDay2-10;
+    sprintTasks=[['手型+哈农No.1-3','C大调五指位置','双手独立练习' ][Math.min(2,pd-1)]||'',''+['5h','6h','6h','7h','7h','7h','7h'][pd-1]+' · '+['手型指法','读谱双手','三和弦','七和弦+进行','伴奏型4种','弹唱同步','曲目结业'][pd-1]];
+  }else if(musicDay2>=18&&musicDay2<=24){
+    sprintLabel='🎻 小提琴速通';
+    const vd=musicDay2-17;
+    sprintTasks=[['持琴持弓·空弦4根','左手手型纠正'][Math.min(1,vd-1)]||'',''+['4h','6h','6h','6h','5h','4h','4h'][vd-1]+' · '+['基本功修复','一把位音阶','换把练习','揉弦练习','弓法5种','曲目复习','新曲结业'][vd-1]];
+  }else{
+    sprintLabel='🌟 自由复习';
+    sprintTasks=['复习薄弱环节','自由创作/录音','准备开学'];
   }
-  document.getElementById('musicTodayTasks').innerHTML = tasksHtml;
+  // Add vocal
+  if(musicDay2>=1&&musicDay2<=30){sprintTasks.push('🎤 声乐D'+musicDay2+' · '+(musicDay2<=15?'基础教材Ch'+musicDay2:'Workout跟练'));}
+
+  let tasksHtml='';
+  for(let i=0;i<sprintTasks.length;i++){
+    const tid='sprint_'+i;
+    const done=!!md[tid];
+    tasksHtml+=`<div class="mp-item" style="cursor:pointer" onclick="toggleMusic('${tid}')">
+      <div class="cb ${done?'done':''}" style="width:20px;height:20px;font-size:.6em">${done?'✓':''}</div>
+      <span style="flex:1;font-size:.78em">${sprintTasks[i]}</span>
+    </div>`;
+  }
+  document.getElementById('musicTodayTasks').innerHTML=tasksHtml;
 
   // Skills progress
   let skillsHtml = '';
