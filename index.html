@@ -1673,9 +1673,11 @@ function renderToday(){
   const musicDay=Math.max(1,Math.floor((new Date(TODAY)-musicStart)/86400000)+1);
   let instPhase='',instDetail='';
   if(musicDay>=1&&musicDay<=3){instPhase='乐理冲刺';instDetail=musicDay===1?'D1:第1-7章(音高·记谱·音律·记号·表情术语·节拍节奏)':musicDay===2?'D2:第8-14章(音程+和弦)':'D3:第15-20章(调式+转调+复习)';}
-  else if(musicDay>=4&&musicDay<=10){const gd=musicDay-3;instPhase='吉他速通';instDetail=`D${gd}:`+['持琴+拨弦+爬格子','C·Am·G和弦','Em·D·Dm+转换','6和弦循环+4扫弦','F横按死磕日','弹唱同步练歌','3首歌+结业录像'][gd-1];}
-  else if(musicDay>=11&&musicDay<=17){const pd=musicDay-10;instPhase='钢琴速通';instDetail=`D${pd}:`+['手型指法+哈农','低音谱号+双手合奏','三和弦原位+转位','七和弦+I-V-vi-IV','伴奏型4种','弹唱同步','3首曲+结业'][pd-1];}
-  else if(musicDay>=18&&musicDay<=24){const vd=musicDay-17;instPhase='小提琴速通';instDetail=`D${vd}:`+['基本功修复(空弦+手型)','一把位音阶','换把练习','揉弦练习','弓法5种','摇篮曲+揉弦+卡农','新曲+结业'][vd-1];}
+  else if(musicDay>=4&&musicDay<=10){const gd=musicDay-3;instPhase='吉他速通';instDetail=[`D${gd}:持琴姿势+右手拨弦(i m a p)+左手按弦+爬格子1234 5h`,`D${gd}:C·Am·G三个和弦(每个音干净) 5h`,`D${gd}:Em·D·Dm+和弦转换C↔Am↔G 5h`,`D${gd}:6和弦循环转换+4种扫弦型(60bpm) 5h`,`D${gd}:F横按死磕日+C→F→G→F→C循环 5h`,`D${gd}:弹唱同步·先弹后唱→边弹边唱 5h`,`D${gd}:练3首歌+Bm·B7·录弹唱视频结业 5h`][gd-1];}
+  else if(musicDay>=11&&musicDay<=17){const pd=musicDay-10;instPhase='钢琴速通';
+    instDetail=[`D${pd}:手型指法(坐姿·C大调五指·哈农No.1-3) 5h`,`D${pd}:读谱双手(低音谱号·双手合奏·C/G/F音阶两个八度) 6h`,`D${pd}:三和弦(原位+转位·12个调) 6h`,`D${pd}:七和弦+I-V-vi-IV进行 7h`,`D${pd}:伴奏型4种(柱式/分解/琶音/Walking Bass) 7h`,`D${pd}:弹唱同步(右手旋律+左手和弦+唱) 7h`,`D${pd}:曲目(3首流行弹唱+致爱丽丝+小步舞曲) 7h`][pd-1];}
+  else if(musicDay>=18&&musicDay<=24){const vd=musicDay-17;instPhase='小提琴速通';
+    instDetail=[`D${vd}:基本功修复(持琴·持弓·4弦空弦·左手手型纠正) 4h`,`D${vd}:一把位音阶(G/D/A大调+小调·琶音·节拍器) 6h`,`D${vd}:换把练习(一把→三把·滑音控制) 6h`,`D${vd}:揉弦练习(手臂/手腕/手指揉弦·长音加揉弦) 6h`,`D${vd}:弓法5种(分弓/连弓/顿弓/跳弓/强弱变化) 5h`,`D${vd}:曲目复习(摇篮曲+流行曲·加揉弦换把) 4h`,`D${vd}:新曲+结业(圣母颂/卡农/一步之遥·录音) 4h`][vd-1];}
   else{instPhase='自由练习';instDetail='复习+巩固+创作';}
 
   // Vocal runs daily Aug 1-30
