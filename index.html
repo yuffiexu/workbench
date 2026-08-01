@@ -1688,13 +1688,14 @@ function renderToday(){
     const now=new Date();
     const augEnd=new Date('2026-09-01T00:00:00');
     const diff=augEnd-now;
-    if(diff<=0){document.getElementById('augDaysLeft').textContent='🎉 八月结束！';return;}
+    if(diff<=0){document.getElementById('augClock').textContent='🎉 八月结束！';document.getElementById('augDaysTxt').textContent='';return;}
     const d=Math.floor(diff/86400000);
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
     const s=Math.floor((diff%60000)/1000);
-    document.getElementById('augClock').textContent=`${d}天 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    document.getElementById('augDaysTxt').textContent=`剩余 ${d+1} 天`;
+    const totalH=Math.floor(diff/3600000);
+    document.getElementById('augClock').textContent=`${totalH}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    document.getElementById('augDaysTxt').textContent=`剩余 ${d+1} 天 · ${totalH} 小时`;
     const daysLeft=d+1;
     let breakdown='';
     for(const[k,v]of Object.entries(hPerDay)){
