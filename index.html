@@ -1739,7 +1739,7 @@ function renderToday(){
   if(!DATA.scheduleDays[TODAY]) DATA.scheduleDays[TODAY] = {};
   const sd = DATA.scheduleDays[TODAY];
   // Calculate music phase (instrument sprint + daily vocal)
-  const musicStart=new Date('2026-08-01');
+  const musicStart=new Date('2026-08-03');
   const musicDay=Math.max(1,Math.floor((new Date(TODAY)-musicStart)/86400000)+1);
   let instPhase='',instDetail='';
   if(musicDay>=1&&musicDay<=3){instPhase='乐理冲刺';instDetail=musicDay===1?'D1:第1-7章(音高·记谱·音律·记号·表情术语·节拍节奏)':musicDay===2?'D2:第8-14章(音程+和弦)':'D3:第15-20章(调式+转调+复习)';}
@@ -1861,7 +1861,7 @@ function renderToday(){
   document.getElementById('todayCsList').innerHTML = csTodayHtml;
 
   // Music tasks summary (same sprint logic as music tab)
-  const mStart=new Date('2026-08-01');
+  const mStart=new Date('2026-08-03');
   const mDay=Math.max(1,Math.floor((new Date(TODAY)-mStart)/86400000)+1);
   let mLabel='',mList=[];
   if(mDay>=1&&mDay<=3){mLabel='📐 乐理冲刺';mList=mDay===1?['第1-4章(音高·记谱·音律·记号)','第5章(速度·力度·表情术语)','第6-7章(节拍与节奏)','每章练习题检验']:mDay===2?['第8-10章(音程)⚠️重点','第11-12章(三和弦+转位)','第13-14章(七和弦+标记)']:['第15-17章(调式+调号+五度圈)','第18-20章(转调+装饰音)','错题重做+思维导图'];}
@@ -2358,7 +2358,7 @@ function getMusicDayNum(){
 
 function renderMusic(){
   // Today's music sprint tasks (auto-detected from August plan)
-  const musicStart2=new Date('2026-08-01');
+  const musicStart2=new Date('2026-08-03');
   const musicDay2=Math.max(1,Math.floor((new Date(TODAY)-musicStart2)/86400000)+1);
   let sprintLabel='',sprintTasks=[];
   if(musicDay2>=1&&musicDay2<=3){
