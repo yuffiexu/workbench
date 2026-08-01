@@ -298,6 +298,7 @@ body{
     <div style="font-size:1.5em;font-weight:900;color:var(--purple);font-variant-numeric:tabular-nums" id="augClock">30天 23:59:59</div>
     <div style="font-size:.85em;color:var(--accent);font-weight:700;margin-top:2px" id="augDaysTxt">剩余31天</div>
     <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:.65em;margin-top:4px" id="augBreakdown"></div>
+    <div style="font-size:.7em;color:var(--accent);font-weight:600;margin-top:3px" id="wpsCountdown"></div>
   </div>
 
   <div class="stat-row">
@@ -1723,6 +1724,10 @@ function renderToday(){
     const ws=Math.floor(totalWakeSec%60);
     document.getElementById('augClock').textContent=`${wh}:${String(wm).padStart(2,'0')}:${String(ws).padStart(2,'0')}`;
     document.getElementById('augDaysTxt').textContent=`剩余 ${d+1} 天 · ${wh} 清醒小时`;
+    // WPS exam countdown
+    const wpsEnd=new Date('2026-09-16');
+    const wpsLeft=Math.max(0,Math.ceil((wpsEnd-now)/86400000));
+    document.getElementById('wpsCountdown').textContent=wpsLeft>0?`📝 WPS考试倒计时：${wpsLeft}天`:'📝 WPS考试已到！';
     const daysLeft=d+1;
     let breakdown='';
     for(const[k,v]of Object.entries(hPerDay)){
@@ -1784,6 +1789,7 @@ function renderToday(){
     {id:'csBlock', label:'💻 14:00-16:00 计算机学习（Python/Linux/SQL）'},
     {id:'englishBlock', label:'📖 16:00-18:00 英语学习（2小时）'},
     {id:'homework', label:'✏️ 18:00-18:30 写作业（30分钟）'},
+    {id:'wps', label:'📝 18:30-19:00 WPS备考（周一/三/五·3h/周）' + (['一','三','五'].includes(['日','一','二','三','四','五','六'][new Date(TODAY).getDay()])?'':' · 今天休息'),},
     {id:'exercise2', label:'🏃 18:30-20:00 运动1.5h（'+ex.name+'·含往返骑行40min）'},
     {id:'dinner', label:'🌙 20:00-20:30 晚餐'+ (isFriday(TODAY)?' · 🧑‍🤝‍🧑周五社交日！':'')},
     {id:'reading', label:'📚 20:30-21:00 阅读（30分钟）'},
